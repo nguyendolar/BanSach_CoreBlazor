@@ -1,0 +1,102 @@
+﻿<ul class="sidebar-nav" id="sidebar-nav">
+
+        <AuthorizeView Roles="@RoleName.Shipper">
+               
+                <Authorized >
+                      <li class="nav-item">
+                        <NavLink class="nav-link collapsed" href="/shipper">
+                    <i class="fas fa-sort-amount-up-alt"></i>
+                            <span>Đơn hàng được giao</span>
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link collapsed" href="/listordershipper">
+                    <i class="fas fa-border-all"></i>
+                            <span>Danh sách đơn hàng</span>
+                        </NavLink>
+                    </li>
+                </Authorized>
+           
+        </AuthorizeView>
+        <AuthorizeView Roles="@(RoleName.Staff + "," + RoleName.Admin)">
+
+            <Authorized>
+            <li class="nav-item">
+                <NavLink class="nav-link collapsed " href="/Dashboard">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </NavLink>
+            </li>
+
+            <li class="nav-item">
+                <NavLink class="nav-link collapsed" href="/listUser">
+                    <i class="fas fa-user"></i>
+                    <span>Người dùng</span>
+                </NavLink>
+            </li>
+
+
+            <li class="nav-item">
+                <NavLink class="nav-link collapsed" href="/listProduct">
+                    <i class="fas fa-box"></i>
+                    <span>Sản phẩm</span>
+                </NavLink>
+            </li>
+
+            <li class="nav-item">
+                <NavLink class="nav-link collapsed" href="/listCategory">
+                    <i class="fas fa-cubes"></i>
+                    <span>Loại hàng</span>
+                </NavLink>
+            </li>
+
+            <li class="nav-item">
+                <NavLink class="nav-link collapsed" href="/listOrder">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>Đơn hàng</span>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link collapsed" href="/chat">
+                    <i class="fas fa-comment-alt"></i>
+                    <span>Chat</span>
+                </NavLink>
+            </li>
+            </Authorized>
+        </AuthorizeView>
+
+    @*vi du co menu con *@
+   @* <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
+            <i class="bi bi-bar-chart"></i><span>Charts</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+            <li>
+                <a href="charts-chartjs.html">
+                    <i class="bi bi-circle"></i><span>Chart.js</span>
+                </a>
+            </li>
+            <li>
+                <a href="charts-apexcharts.html">
+                    <i class="bi bi-circle"></i><span>ApexCharts</span>
+                </a>
+            </li>
+            <li>
+                <a href="charts-echarts.html">
+                    <i class="bi bi-circle"></i><span>ECharts</span>
+                </a>
+            </li>
+        </ul>
+    </li><!-- End Charts Nav -->*@
+</ul>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

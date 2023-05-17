@@ -1,0 +1,38 @@
+﻿@inject ICartService CartService
+@using PoPoy.Client.Services.CartService
+@using PoPoy.Shared.Dto
+
+
+<RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Chọn số lượng (Còn <strong style="font-size: 18px;">@MAX_QUANTITY_PRODUCT</strong> sản phẩm)</RadzenText>
+<RadzenNumeric ValueExpression="@(() => Model.Quantity)" Value="@Model.Quantity"
+               TValue="int" Min="1" Max="@MAX_QUANTITY_PRODUCT" Change=@(args => OnQuantityChanged(args, Model)) />
+
+
+
+
+
+@code {
+    [Parameter]
+    public Cart Model { get; set; }
+    [Parameter]
+    public int MAX_QUANTITY_PRODUCT { get; set; }
+    [Parameter]
+    public CartUpdateType CartUpdateType { get; set; }
+
+    [Parameter]
+    public EventCallback QuantityChanged { get; set; }
+
+    private async void OnQuantityChanged(int quantity, Cart cart)
+    {
+        if (quantity > MAX_QUANTITY_PRODUCT)
+            quantity = MAX_QUANTITY_PRODUCT;
+        Model.Quantity = quantity;
+        if (CartUpdateType is CartUpdateType.Update)
+        {
+            await CartService.UpdateAsync(cart.ToCartStorage());
+        }
+
+        await QuantityChanged.InvokeAsync();
+    }
+
+}

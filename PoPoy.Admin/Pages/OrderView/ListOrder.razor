@@ -1,0 +1,144 @@
+﻿@page "/listOrder"
+@attribute [Authorize(Roles = RoleName.Admin + "," + RoleName.Staff)]
+
+@inject IOrderService OrderService
+@inject IAuthService AuthService
+
+<div class="card">
+    <div class="card-body">
+        <h2 class="mt-4 ml-3 mb-3 card-title" style="color:#012970">Danh sách đơn hàng</h2>
+        <div class="row mt-4 ml-3">
+            <RadzenDataGrid Responsive AllowFiltering="true" AllowColumnResize="true"
+                            FilterMode="Radzen.FilterMode.Simple" PageSize="5" PagerHorizontalAlign="HorizontalAlign.Center" AllowPaging="true" AllowSorting="true" Data="@Orders" TItem="Order" ColumnWidth="300px"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            LogicalFilterOperator="LogicalFilterOperator.Or"
+                            SelectionMode="DataGridSelectionMode.Single">
+                <Columns>
+                    <RadzenDataGridColumn Frozen="true" Width="221px" Title="Thao tác" TItem="Order" Context="product" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                        <Template>
+                            <RadzenButton Text="Xem" Icon="edit" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Dark" Class="m-1" Click="args => OpenDetail(product.Id.ToString())">
+                            </RadzenButton>
+                            <RadzenButton Text="Xoá" Icon="delete_forever" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Danger" Class="m-1" Click="args => OnDeleteTask(product.Id)">
+                            </RadzenButton>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Width="161px" Frozen="true" TItem="Order" Property="Id" Title="Mã đơn hàng" CssClass="MyInputClass" />
+
+                    <RadzenDataGridColumn TItem="Order" Filterable="false" Property="TotalPrice" Title="Tổng đơn hàng" CssClass="MyInputClass" />
+                    <RadzenDataGridColumn TItem="Order" Property="PaymentMode" Title="Phương thức thanh toán" CssClass="MyInputClass" />
+                    <RadzenDataGridColumn TItem="Order" Property="PaymentStatus" Title="Tình trạng thanh toán" CssClass="MyInputClass" />
+                    <RadzenDataGridColumn TItem="Order" Property="OrderStatus" Title="Tình trạng đơn hàng" CssClass="MyInputClass" />
+                    <RadzenDataGridColumn TItem="Order" Context="order" Title="Tên người dùng">
+                        <Template>
+                            @Users.FirstOrDefault(x => x.Id == order.UserId).FirstName @Users.FirstOrDefault(x => x.Id == order.UserId).LastName
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Order" Context="order" Title="Địa chỉ">
+                        <Template>
+                            @Addresses.FirstOrDefault(x => x.UserId == order.UserId).District , @Addresses.FirstOrDefault(x => x.UserId == order.UserId).City @Addresses.FirstOrDefault(x => x.UserId == order.UserId).Street @Addresses.FirstOrDefault(x => x.UserId == order.UserId).Ward
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Order" Context="order" Title="Ngày đặt">
+                        <Template>
+                            @order.OrderDate.ToString("MM/dd/yyyy")
+                        </Template>
+                    </RadzenDataGridColumn>
+
+
+
+                </Columns>
+            </RadzenDataGrid>
+
+        </div>
+    </div>
+</div>
+
+<Confirmation ConfirmationMessage="Bạn chắc chắn xóa đơn hàng này?"
+              ConfirmationTitle="Xóa đơn hàng"
+              @ref="DeleteConfirmation"
+              ConfirmationChanged="OnConfirmDeleteTask">
+
+</Confirmation>
+
+@code {
+    private string searchText = string.Empty;
+    private List<Order> Orders { get; set; } = new List<Order>();
+    private List<User> Users { get; set; } = new List<User>();
+    private List<Address> Addresses { get; set; } = new List<Address>();
+    private string OrderId { set; get; }
+    private Confirmation DeleteConfirmation { set; get; }
+    [Inject] private DialogService DialogService { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await GetOrders();
+        await GetUsers();
+        await GetAddress();
+    }
+
+    public void OnDeleteTask(string orderId)
+    {
+        OrderId = orderId;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDeleteTask(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            await OrderService.DeleteOrder(OrderId);
+            await GetOrders();
+            StateHasChanged();
+        }
+    }
+
+    private async Task GetOrders()
+    {
+        var pagingResponse = await OrderService.GetAllOrders();
+        if (searchText != null)
+        {
+            Orders = pagingResponse;
+        }
+    }
+
+    private async Task GetUsers()
+    {
+        var pagingResponse = await AuthService.GetUsers();
+        Users = pagingResponse;
+    }
+
+    private async Task GetAddress()
+    {
+        var pagingResponse = await AuthService.GetAddresses();
+        Addresses = pagingResponse;
+    }
+
+    public async Task SearchOrders()
+    {
+        var pagingResponse = await OrderService.GetAllOrders();
+        if (!String.IsNullOrEmpty(searchText))
+        {
+            Orders = await OrderService.SearchOrder(searchText);
+        }
+        else
+        {
+            Orders = pagingResponse;
+        }
+    }
+
+
+    public async Task OpenDetail(string id)
+    {
+        await DialogService.OpenAsync<ListOrderDetails>($"",
+               new Dictionary<string, object>() { { "OrderID", id } },
+               new DialogOptions() { Width = "1400px", Height = "712px", Resizable = true, Draggable = false, CssClass = "modal-content" });
+
+    }
+
+    //public async Task OpenCreate()
+    //{
+    //    await DialogService.OpenAsync<CreateCategory>($"Tạo mới loại hàng"
+    //           , options:
+    //           new DialogOptions() { Width = "400px", Height = "512px", Resizable = true, Draggable = false, CssClass = "modal-content" });
+
+    //}
+}

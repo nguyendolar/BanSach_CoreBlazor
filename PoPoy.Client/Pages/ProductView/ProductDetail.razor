@@ -1,0 +1,237 @@
+﻿@page "/product-detail/{id:int}"
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@using PoPoy.Client.Extensions;
+@inject IProductService _productSvc;
+@inject ILocalStorageService LocalStorage
+@inject IToastService _toastSvc;
+@inject ICartService _cartSvc;
+@inject IConfiguration _config;
+@inject HttpClient _httpClient;
+
+<PageInfos Title="@product.Title"></PageInfos>
+<div class="bg-main">
+    <div class="container">
+        <div class="box">
+            <div class="breadcumb">
+                @*<ReloadPage Title="Trang chủ" Uri="/"></ReloadPage>
+                <span><i class="bx bxs-chevrons-right"></i></span>
+                <a href="/products">Sản phẩm</a>
+                <span><i class="bx bxs-chevrons-right"></i></span>
+                <a href="./product-detail.html">JBL Tune 750TNC</a>*@
+            </div>
+        </div>
+        <div class="row product-row">
+            <div class="col-5">
+                @try
+                {
+                    @if (product.ProductImages.Any())
+                    {
+
+                        <div class="product-img" id="product-img">
+                            <img src="@imagePath" alt="">
+                        </div>
+                        <div class="box">
+                            <div class="product-img-list">
+                                @foreach (var item in product.ProductImages)
+                                {
+                                    <div class="product-img-item">
+                                        <img src="@item.ImagePath" @onmouseover="()=>ClickToImage(item.ImagePath)" alt="">
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <img src="@_config["BackendApiUrl"]/uploads/no-photo-available.png" alt="">
+                    }
+                }
+                catch { }
+
+
+            </div>
+            <div class="col-7">
+                <div class="product-info detailInfo">
+                    <h1>
+                        @product.Title <br />
+                    </h1>
+                    <div class="product-info-detail">
+                        <span class="product-info-detail-title">Lượt xem:</span>
+                        @product.Views
+                    </div>
+                    <div class="product-info-detail">
+                        <span class="product-info-detail-title">Đã bán:</span>
+                        @product.CheckoutCount
+                    </div>
+                    <div class="product-info-detail">
+                        <span class="product-info-detail-title">Danh mục: </span>
+                        @try
+                        {
+                            if (product.ProductInCategories.Any())
+                            {
+                                @product.ProductInCategories.FirstOrDefault().Category.Name
+                            }
+                        }
+                        catch { }
+                    </div>
+                    <div class="product-info-detail">
+                        <span class="product-info-detail-title">
+                            Đánh giá:
+                            <RatingStar Rating="@reviewAverage"></RatingStar>
+                        </span>
+                    </div>
+                    <div class="product-info-detail">
+                        <span class="product-info-detail-title">
+                            Số lượt đánh giá:
+                            @(reviewCount)
+                        </span>
+                    </div>
+                    @if (_ready && product.ProductQuantities != null && product.ProductQuantities.Count > 0)
+                        {
+                    <div class="product-info-price">
+
+                            @FormatData.FormatAsPrice(Price)
+                        
+                    </div>
+                    
+                    <SelectSize productVariants="@product.ProductQuantities" Model="@cart" CartUpdateType="CartUpdateType.Add" Product_Id="@id" QuantityChanged="GetPriceProduct"></SelectSize>
+
+                    }
+                    <div>
+                        <button class="btn-flat btn-hover" @onclick="AddToCart">Thêm vào giỏ hàng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="box">
+            <div class="box-header">
+                mô tả
+            </div>
+            <div class="product-detail-description">
+                <button class="btn-flat btn-hover btn-view-description" id="view-all-description" @onclick="ButtonViewAllClick">
+                    @{
+                        var ViewAllOrViewLess = IsViewAll ? "thu gọn nội dung" : "xem thêm nội dung";
+                    }
+                    @ViewAllOrViewLess
+                </button>
+                @{
+                    var isActive = IsViewAll ? "" : "active";
+                }
+                <div class="product-detail-description-content @isActive">
+                    <p>
+                        @((MarkupString)product.Description)
+                    </p>
+                </div>
+            </div>
+        </div>
+        <ProductReview ProductId="@id" OnReviewAverageCalculated="@OnReviewAverageCalculated"></ProductReview>
+        <ProductList Box_Header="Sản phẩm liên quan"></ProductList>
+        <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage" />
+    </div>
+</div>
+@code {
+    [Parameter]
+    public int id { get; set; }
+    private Cart cart = new Cart();
+    private Product product;
+    [Inject] private IBroadCastService broadCastService { get; set; }
+    public MetaData MetaData { get; set; } = new MetaData();
+    private ProductParameters _productParameters = new ProductParameters();
+    private decimal reviewAverage;
+    private int reviewCount;
+    private bool IsViewAll { get; set; } = false;
+    private string imagePath { get; set; } = null;
+    private string Price { get; set; } = "0";
+    bool _ready = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = new Product();
+        var result = await _productSvc.Get(id);
+        if (result.Success)
+        {
+            product = result.Data;
+            if (product.ProductImages.Any())
+                imagePath = product.ProductImages.FirstOrDefault().ImagePath;
+        }
+        cart = new Cart() { Quantity = 1, Product = product };
+        await GetProducts();
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        _productParameters.PageNumber = page;
+        await GetProducts();
+    }
+    private async Task GetProducts()
+    {
+        _productParameters.PageSize = 3;
+        Console.WriteLine("_productParameters.PageSize: " + _productParameters.PageSize);
+        await _productSvc.GetAll(_productParameters, product.ProductInCategories.FirstOrDefault().Category.Url);
+        MetaData = _productSvc.Products.MetaData;
+    }
+    public async Task<int> GetProductQuantityAndPrice(int sizeid, int prodid, int colorid)
+    {
+        var res = await _httpClient.GetStringAsync($"/api/product/get-product-quantity-price?sizeId={sizeid}&Prodid={prodid}&colorId={colorid}");
+        var result = JsonConvert.DeserializeObject(res.ToString()) as JObject;
+        var quantity = (string)result["Quantity"];
+        var price = (string)result["Price"];
+        return Convert.ToInt32(quantity.ToString());
+    }
+    private async void AddToCart()
+    {
+        var stock = await GetProductQuantityAndPrice(cart.SizeId, id, cart.ColorId);
+        if (cart.SizeId <= 0)
+        {
+            _toastSvc.ShowError("Mời chọn size!");
+            StateHasChanged();
+            return;
+        }
+        if (cart.Quantity > stock)
+        {
+            _toastSvc.ShowError($"Sản phẩm size này chỉ còn {stock} sản phẩm");
+            StateHasChanged();
+            return;
+        }
+        if (stock <= 0)
+        {
+            _toastSvc.ShowError("Mặt hàng này đã hết. Mời quý khách vui lòng chọn món hàng khác!");
+            StateHasChanged();
+        }
+        if (cart.SizeId > 0 && cart.Quantity <= stock && stock > 0)
+        {
+            await _cartSvc.AddAsync(cart.ToCartStorage());
+            _toastSvc.ShowSuccess($"Thêm thành công {cart.Product.Title} x{cart.Quantity}");
+
+        }
+    }
+    private void OnReviewAverageCalculated(ReviewAverageCalculatedEventArgs args)
+    {
+        reviewCount = args.ReviewCount;
+        reviewAverage = args.ReviewAverage;
+        Console.WriteLine("reviewAverage" + reviewAverage);
+    }
+    private void GetPriceProduct(string price)
+    {
+        Price = price;
+        StateHasChanged();
+    }
+    private void ButtonViewAllClick()
+    {
+        IsViewAll = !IsViewAll;
+        StateHasChanged();
+    }
+    private void ClickToImage(string imgPath)
+    {
+        this.imagePath = imgPath;
+        StateHasChanged();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_ready == false)
+        {
+            _ready = true;
+        }
+    }
+}

@@ -1,0 +1,39 @@
+﻿<li class="has_dropdown">
+    <a href="#"><i class='bx bx-bell'></i></a>
+    <span class="position-absolute top-0 start-100 translate-middle">
+        @(@notifications.Count(p => !p.IsRead))
+        <span class="visually-hidden">@*unread messages*@</span>
+    </span>
+
+    <div  class="dropdowns messaging--dropdown" style="background: white; max-height: 50vh; overflow: auto">
+        <div class="dropdown_module_header">
+            <h4>Thông báo</h4>
+            <a href="javascript:void(0)" @onclick="ReadAllNoti">Xem tất cả</a>
+        </div>
+
+        @foreach (var item in notifications)
+        {
+            var isread = item.IsRead ? "read" : "text-danger";
+            var NewText = item.IsRead ? "" : "[New]";
+            <div class="messages ">
+                <a href="@item.DataUrl" class="message recent" @onclick="() => ReadNoti(item)">
+                    <div class="message_data">
+                        <div class="name_time">
+                            <div class="name">
+                                <b class="text-break text-wrap @isread">@item.Title @NewText</b>
+                                <div style="max-height: 100%; font-size: 13px; font-weight: 200" class="text-wrap  ">@item.Message</div>
+
+                            </div>
+                            <span class="time">
+
+                            </span>
+                            <p>@item.Created.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        }
+    </div>
+</li>
+

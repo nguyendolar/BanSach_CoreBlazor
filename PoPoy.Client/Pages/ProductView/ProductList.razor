@@ -1,0 +1,112 @@
+﻿@inject IProductService _productSvc;
+@inject IConfiguration _config;
+@inject IToastService _toastSvc;
+@implements IDisposable;
+@inject IPublicReviewService PublicReviewService
+<div class="box">
+    @if (Box_Header != null)
+    {
+        <div class="box-header">
+            @Box_Header
+        </div>
+    }
+    <div class="row" id="products">
+        @if (_productSvc.Products.Items == null || _productSvc.Products.Items.Count == 0)
+        {
+            <LoadingScreen></LoadingScreen>
+        }
+        else
+        {
+            foreach (var item in _productSvc.Products.Items)
+            {
+                <div class="col-4 col-md-4 col-sm-12">
+                    <div class="product-card">
+                        <div class="product-card-img">
+
+                            @try
+                            {
+                                @if (item.ProductImages.Any())
+                                {
+                                    <img src="@item.ProductImages.FirstOrDefault().ImagePath" alt="">
+                                    if (item.ProductImages.Skip(1).FirstOrDefault() != null)
+                                    {
+                                        <img src="@item.ProductImages.Skip(1).FirstOrDefault().ImagePath" alt="">
+                                    }
+                                    else
+                                    {
+                                        <img src="@item.ProductImages.FirstOrDefault().ImagePath" alt="">
+                                    }
+
+                                }
+                                else
+                                {
+                                    <img src="@_config["BackendApiUrl"]/uploads/no-photo-available.png" alt="">
+                                    <img src="@_config["BackendApiUrl"]/uploads/no-photo-available.png" alt="">
+                                }
+                            }
+                            catch { }
+
+                        </div>
+                        <div class="product-card-info">
+                            <div class="product-btn">
+                                <a href="/product-detail/@item.Id" class="btn-flat btn-hover btn-shop-now">mua ngay</a>
+                            </div>
+                            <div class="product-card-name" style="font-size: 14px">
+                                @item.Title | Lượt xem: @item.Views
+                            </div>
+                            <div class="product-card-info">
+                                @item.ReviewAverage<i class="fa fa-star"></i> | Đã bán: @item.CheckoutCount
+                            </div>
+                            <div class="product-card-price">
+                                <span class="curr-price" style="font-size: 14px">@GetPriceText(item)</span>
+                                
+                            </div>
+                            @*<span style="font-size:15px">Số lượng còn lại: </span><span style="color:red;font-size:15px">@item.Stock</span>*@
+                        </div>
+                    </div>
+                    
+                </div>
+            }
+
+        }
+
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public string Box_Header { get; set; }
+    public string Message { get; set; }
+    private decimal reviewAverage{ get; set; }
+    private int reviewCount;
+    private List<Review> reviews = new();
+    protected override void OnInitialized()
+    {
+        Message = _productSvc.Message;
+        _productSvc.ProductsChanged += StateHasChanged;
+    }
+    protected override void OnParametersSet()
+    {
+        _productSvc.ProductsChanged += StateHasChanged;
+    }
+    public void Dispose()
+    {
+        _productSvc.ProductsChanged -= StateHasChanged;
+    }
+    private string GetPriceText(Product product)
+    {
+        var variants = product.ProductQuantities;
+        if (variants == null || variants.Count == 0 )
+        {
+            return string.Empty;
+        }
+        else if (variants.Count == 1)
+        {
+            return $"{FormatData.FormatAsPrice(variants[0].Price)}";
+        }
+        decimal minPrice = variants.Min(v => v.Price);
+        decimal maxPrice = variants.Max(v => v.Price);
+        return $"{FormatData.FormatAsPrice(minPrice)} - {FormatData.FormatAsPrice(maxPrice)}";
+    }
+}

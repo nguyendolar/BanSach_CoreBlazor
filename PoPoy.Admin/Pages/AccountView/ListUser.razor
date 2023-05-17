@@ -1,0 +1,198 @@
+﻿@page "/listUser"
+
+@inject IConfiguration Configuration
+@inject IAuthService AuthService
+
+@if (ShowErrors)
+{
+    <div class="alert alert-danger">
+        <p>@Error</p>
+    </div>
+}
+else
+{
+ @*   <h2 class="mt-4 ml-3 mb-3" style="color:darkblue">Danh sách người dùng</h2>
+    <div class="input-group" style="left: 950px;">
+        <div class="form-outline">
+            <input @bind-value="searchText"
+                   type="search"
+                   list="users"
+                   class="form-control"
+                   placeholder="Search..." />
+        </div>
+        <button type="button" class="btn btn-primary" @onclick="SearchUsers">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+    <div class="row mt-4 ml-3">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        Tên
+                    </th>
+                    <th>
+                        Họ
+                    </th>
+                    <th>
+                        Số điện thoại
+                    </th>
+                    <th>
+                        Tài khoản
+                    </th>
+                    <th>
+                        Email
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Users)
+                {
+                    <tr>
+                        <td>@item.FirstName</td>
+                        <td>@item.LastName</td>
+                        <td>@item.PhoneNumber</td>
+                        <td>@item.UserName</td>
+                        <td>@item.Email</td>
+                        <td>
+                            <a href="/roles/@item.Id" class="btn btn-primary"><i class="oi oi-pencil"></i></a>
+                            <a href="/updateUser/@item.Id" class="btn btn-warning"><i class="oi oi-cloud-upload"></i></a>
+                            <button @onclick="()=> OnDeleteTask(item.Id)" class="btn btn-danger"><i class="oi oi-trash"></i></button>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+*@
+}
+<RadzenButton Icon="add_circle_outline" Click="OpenCreate" Text="Tạo người dùng mới" class="col-lg-4" ButtonStyle="ButtonStyle.Success"/>
+<div class="card">
+    <div class="card-body">
+        <h2 class="mt-4 ml-3 mb-3 card-title" style="color:#012970">Danh sách người dùng</h2>
+        <div class="row mt-4 ml-3">
+            <RadzenDataGrid Responsive AllowFiltering="true" AllowColumnResize="true"
+                            FilterMode="Radzen.FilterMode.Simple" PageSize="5" PagerHorizontalAlign="HorizontalAlign.Center" AllowPaging="true" AllowSorting="true" Data="@Users" TItem="User" ColumnWidth="300px"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            LogicalFilterOperator="LogicalFilterOperator.Or"
+                            SelectionMode="DataGridSelectionMode.Single">
+                <Columns>
+                       <RadzenDataGridColumn TItem="User" Context="user" Filterable="false" Title="Họ Tên" Sortable="false" TextAlign="TextAlign.Left">
+                        <Template>
+                           @(user.FirstName + " " + user.LastName);
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="User" Property="UserName" Title="Username" CssClass="MyInputClass" />
+                    <RadzenDataGridColumn TItem="User" Property="PhoneNumber" Title="Số điện thoại" CssClass="MyInputClass" />
+                    <RadzenDataGridColumn TItem="User" Property="Email" Title="Email" CssClass="MyInputClass" />
+
+                    <RadzenDataGridColumn TItem="User" Context="user" Filterable="false" Sortable="false" TextAlign="TextAlign.Right">
+                        <Template>
+                            <RadzenButton Text="Chỉnh sửa" Icon="edit" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Warning" Class="m-1" Click="args => OpenEdit(user.Id.ToString())">
+                            </RadzenButton>
+                            <RadzenButton Text="Xoá" Icon="delete_forever" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Danger" Class="m-1" Click="args => OnDeleteTask(user.Id)">
+                            </RadzenButton>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+
+        </div>
+    </div>
+</div>
+
+<Confirmation ConfirmationMessage="Bạn chắc chắn xóa người dùng này?"
+              ConfirmationTitle="Xóa người dùng"
+              @ref="DeleteConfirmation"
+              ConfirmationChanged="OnConfirmDeleteTask">
+
+</Confirmation>
+
+@code {
+    private string searchText = string.Empty;
+    private bool ShowErrors;
+    private List<User> Users { get; set; } = new List<User>();
+    private string Error = "";
+    private Guid DeleteId { set; get; }
+    private Confirmation DeleteConfirmation { set; get; }
+    [Inject] private DialogService DialogService { get; set; }
+    public event Action<dynamic> Close;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Close += async (r) => { await GetUsers(); StateHasChanged(); };
+        DialogService.OnClose += Close;
+        await GetUsers();
+    }
+
+    public void OnDeleteTask(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+    public void Dispose()
+    {
+        // The DialogService is a singleton so it is advisable to unsubscribe.
+        DialogService.OnClose -= Close;
+    }
+    public async Task OnConfirmDeleteTask(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            await AuthService.DeleteUser(DeleteId);
+            await GetUsers();
+        }
+    }
+
+    private async Task GetUsers()
+    {
+        ShowErrors = false;
+        var pagingResponse = await AuthService.GetUsers();
+        if (searchText != null)
+        {
+            Users = pagingResponse;
+        }
+        if (pagingResponse.Count == 0)
+        {
+            Error = "Không tìm thấy người dùng";
+        }
+    }
+
+    public async Task SearchUsers()
+    {
+        var pagingResponse = await AuthService.GetUsers();
+        if (!String.IsNullOrEmpty(searchText))
+        {
+            Users = await AuthService.SearchUser(searchText);
+        }
+        else
+        {
+            Users = pagingResponse;
+        }
+    }
+
+    
+    public async Task OpenEdit(string id)
+    {
+        await DialogService.OpenAsync<EditUser>($"Chỉnh sửa người dùng",
+               new Dictionary<string, object>() { { "Id", id } },
+               new DialogOptions() { Width = "1400px", Height = "612px", Resizable = true, Draggable = false, CssClass = "modal-content" });
+
+    }
+    public async Task OpenCreate()
+    {
+        await DialogService.OpenAsync<CreateUser>("Tạo người dùng",
+               options:
+               new DialogOptions() { Width = "1400px", Height = "612px", Resizable = true, Draggable = false, CssClass = "modal-content" });
+
+    }
+
+    //public async Task OpenCreate()
+    //{
+    //    await DialogService.OpenAsync<CreateCategory>($"Order",
+    //           new Dictionary<string, object>() { { "OrderID", null } },
+    //           new DialogOptions() { Width = "700px", Height = "512px", Resizable = true, Draggable = true });
+    //}
+}

@@ -1,0 +1,89 @@
+﻿@page "/products"
+@page "/category/{categoryUrl}"
+@page "/search/{searchText}"
+@page "/filter"
+@inject IProductService _productSvc;
+@inject IConfiguration _config;
+<PageInfos Title="Sản phẩm"></PageInfos>
+<div class="bg-main">
+    <div class="container">
+        <div class="box">
+            <div class="breadcumb">
+                @*<ReloadPage Title="Trang chủ" Uri="/"></ReloadPage>
+                <span><i class="bx bxs-chevrons-right"></i></span>
+                <a href="/products">Sản phẩm</a>*@
+            </div>
+        </div>
+        <Sort OnSortChanged="SortChanged"></Sort>
+
+        <div class="box">
+            <div class="row">
+                @{ var isActive = IsFilter ? "active" : ""; }
+                <div class="col-xl-3 filter-col @isActive" id="filter-col">
+                    <div class="box filter-toggle-box">
+                        <button class="btn-flat btn-hover" @onclick="()=>ButtonFilterClick(false)" id="filter-close">Đóng</button>
+                    </div>
+                    <CategoryFilter></CategoryFilter>
+                </div>
+                <div class="col-xl-9">
+                    <div class="box filter-toggle-box">
+                        <button class="btn-flat btn-hover" @onclick="()=>ButtonFilterClick(true)" id="filter-toggle">Lọc</button>
+                    </div>
+                    <ProductList></ProductList>
+                    <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public string? CategoryUrl { get; set; } = null;
+    [Parameter]
+    public string? SearchText { get; set; } = null;
+
+    private PoPoy.Client.Shared.MainLayoutView.Modal Modal { get; set; }
+    private bool IsFilter = false;
+
+    public List<Product> ProductList { get; set; } = new List<Product>();
+    public MetaData MetaData { get; set; } = new MetaData();
+    private ProductParameters _productParameters = new ProductParameters();
+
+    private string newest = "newest";
+    protected override async Task OnParametersSetAsync()
+    {
+        if (SearchText != null)
+        {
+            _productParameters.PageNumber = 1;
+            _productParameters.searchText = SearchText;
+        }
+        else
+        {
+            _productParameters = new ProductParameters();
+
+        }
+        await GetProducts();
+    }
+    private async Task SelectedPage(int page)
+    {
+        _productParameters.PageNumber = page;
+        await GetProducts();
+    }
+    private async Task GetProducts()
+    {
+        await _productSvc.GetAll(_productParameters, CategoryUrl);
+        ProductList = _productSvc.Products.Items;
+        MetaData = _productSvc.Products.MetaData;
+    }
+
+    private void ButtonFilterClick(bool isfilter)
+    {
+        IsFilter = isfilter;
+        StateHasChanged();
+    }
+    private async Task SortChanged(string orderBy)
+    {
+        _productParameters.OrderBy = orderBy;
+        await GetProducts();
+    }
+}

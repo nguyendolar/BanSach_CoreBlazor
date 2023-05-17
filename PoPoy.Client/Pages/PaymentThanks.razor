@@ -1,0 +1,63 @@
+﻿@page "/payment-thanks"
+@inject NavigationManager NavigationManager;
+@inject IAuthService AuthService;
+@inject ILocalStorageService LocalStorage;
+
+@layout EmptyLayout
+<div class="text-center">
+    <header class="site-header" id="header" style="display:flex;justify-content: center;
+align-items: center;">
+        <h1 class="site-header__title" data-lead-id="site-header-title">THANK YOU!</h1>
+    </header>
+
+    <div class="main-content">
+        <i class="fa fa-check main-content__checkmark" id="checkmark"></i>
+        <p class="main-content__body" data-lead-id="main-content-body">Cảm ơn quý khách đã đặt hàng. Chúng tôi sẽ gửi mail sau ít phút !</p>
+    </div>
+
+    <AuthorizeView>
+        <Authorized>
+            <ReloadPage Title="Xem lịch sử mua hàng" Uri="/user/list-order"></ReloadPage>
+        </Authorized>
+    </AuthorizeView>
+
+</div>
+
+@code{
+    private string _paymentId;
+    private string _payerId;
+    private string _VnPayTransactionStatus;
+
+
+    protected async override void OnAfterRender(bool firstRender)
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var queryStrings = QueryHelpers.ParseQuery(uri.Query);
+        var userId = await LocalStorage.GetItemAsync<Guid>("getUserId");
+
+        if (queryStrings.TryGetValue("paymentId", out var paymentId))
+        {
+            _paymentId = paymentId;
+        }
+        if (queryStrings.TryGetValue("PayerId", out var payerId))
+        {
+            _payerId = payerId;
+        }
+        if (queryStrings.TryGetValue("vnp_TransactionStatus", out var VnPayTransactionStatus))
+        {
+            _VnPayTransactionStatus = VnPayTransactionStatus;
+        }
+
+        // Lấy thông tin trạng thái thanh toán của PayPal
+        if (_payerId != null && _paymentId != null)
+        {
+            await AuthService.PaymentPaypal(_paymentId, _payerId, userId);
+        }
+
+        // Lấy thông tin trạng thái thanh toán của VNPay
+        if (_VnPayTransactionStatus != null)
+        {
+            await AuthService.PaymentVnpay(_VnPayTransactionStatus, userId);
+        }
+    }
+}

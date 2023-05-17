@@ -1,0 +1,164 @@
+﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization;
+@using Blazored.Toast.Configuration
+@implements IDisposable;
+<body>
+    <!-- header -->
+    <header>
+        <!-- mobile menu -->
+        <div class="mobile-menu bg-second">
+            <a href="/" class="mb-logo">Popoy</a>
+            <span class="mb-menu-toggle" id="mb-menu-toggle" @onclick="()=>Collapse()">
+                <i class='bx bx-menu'></i>
+            </span>
+        </div>
+        <!-- end mobile menu -->
+        <!-- main header -->
+        <div class="header-wrapper @active" id="header-wrapper">
+            <span class="mb-menu-toggle mb-menu-close" id="mb-menu-close"@onclick="()=>Collapse()">
+                <i class='bx bx-x'></i>
+            </span>
+            <!-- top header -->
+            <div class="bg-second">
+                <div class="top-header container">
+                    <ul class="devided">
+                        <li>
+                            <strong>HOTLINE CSKH:</strong> 0898 515 689
+                        </li>
+                    </ul>
+                    <ul class="devided">
+                        @*<li class="dropdown">
+                            <a href="">USD</a>
+                            <i class='bx bxs-chevron-down'></i>
+                            <ul class="dropdown-content">
+                                <li><a href="#">VND</a></li>
+                                <li><a href="#">JPY</a></li>
+                                <li><a href="#">EUR</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="">ENGLISH</a>
+                            <i class='bx bxs-chevron-down'></i>
+                            <ul class="dropdown-content">
+                                <li><a href="#">VIETNAMESE</a></li>
+                                <li><a href="#">JAPANESE</a></li>
+                                <li><a href="#">FRENCH</a></li>
+                                <li><a href="#">SPANISH</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#">ORDER TRACKING</a></li>*@
+                    </ul>
+                </div>
+            </div>
+            <!-- end top header -->
+            <!-- mid header -->
+            <NavBar></NavBar>
+            <!-- end mid header -->
+            <!-- bottom header -->
+            <div class="bg-second">
+                <div class="bottom-header container">
+                    <ul class="main-menu">
+                        <li><ReloadPage Title="Trang chủ" Uri="/"></ReloadPage></li>
+                        <li><a href="/products">Sản phẩm</a></li>
+                        <!-- mega menu -->
+                        <li class="mega-dropdown">
+                            <a href="./products">Danh mục cửa hàng<i class='bx bxs-chevron-down'></i></a>
+                            <div class="mega-content">
+                                <div class="row">
+                                    <div class="col-3 col-md-12">
+                                        <CategoryFilter></CategoryFilter>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </li>
+                        <!-- end mega menu -->
+                        <li><a href="/location">Liên hệ</a></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- end bottom header -->
+        </div>
+        <!-- end main header -->
+    </header>
+    <!-- end header -->
+
+        @Body
+
+    <!-- footer -->
+    <footer class="bg-second">
+        <div class="container">
+            <div class="row">
+                <div class="col-3 col-md-6">
+                    <CategoryFilter></CategoryFilter>
+                    <p>☎️&nbsp;<strong>Hotline Bán Hàng: 0909.300.746 - 0909.45.0001</strong></p>
+                    <p>☎️&nbsp;<strong>Hotline CSKH: 0898 515 689</strong></p>
+                </div>
+                
+                <div class="col-3 col-md-6 col-sm-12">
+                    <div class="contact">
+                        <h3 class="contact-header">
+                            <img src="./images/logo.png" style="width:180px;height:75px;"/>
+                        </h3>
+                        <ul class="contact-socials">
+                            <li>
+                                <a href="https://www.facebook.com/beclassy.vn/">
+                                    <i class='bx bxl-facebook-circle'></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.instagram.com/beclassy.vn/">
+                                    <i class='bx bxl-instagram-alt'></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.youtube.com/channel/UCyWNlEAruzS2IH2pztLrDMg">
+                                    <i class='bx bxl-youtube'></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://zalo.me/1516216379227086944">
+                                    <i class='bx bxl-twitter'></i>
+                                </a>
+                            </li>
+                        </ul>
+                        <p style="margin-left:112px;margin-top:50px;"><a href="http://online.gov.vn/Home/WebDetails/86431" target="_blank"><img alt="" height="104" src="https://kingshoes.vn/data/upload/media/logoSaleNoti.png" width="275"></a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- end footer -->
+
+
+</body>
+
+<BlazoredToasts Position="ToastPosition.BottomRight"
+                Timeout="4"
+                IconType="IconType.FontAwesome"
+                SuccessClass="success-toast-override"
+                SuccessIcon="fa fa-thumbs-up"
+                ErrorIcon="fa fa-bug"
+                WarningIcon="far fa-bell" />
+@code{
+    public bool collapse { get; set; } = false;
+    public string active => collapse ? "active" : null;
+    public void Collapse(){
+        collapse = !collapse;
+    }
+    [Inject]
+    public HttpInterceptorService Interceptor { get; set; }
+    [Inject]
+    public IAuthService authService{get;set;}
+    protected async override Task OnInitializedAsync()
+    {
+        if(await authService.IsUserAuthenticated())
+            Interceptor.RegisterEvent();
+    }
+    public void Dispose() => Interceptor.DisposeEvent();
+}
+
+<RadzenDialog />
+<RadzenNotification />
+<RadzenContextMenu />
+<RadzenTooltip />

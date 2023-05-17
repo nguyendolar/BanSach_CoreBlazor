@@ -1,0 +1,119 @@
+﻿@using PoPoy.Client.Extensions;
+@inject IOrderService _svc;
+@inject IToastService _toastSvc;
+@inject DialogService dialogSvc;
+@inject NavigationManager NavigationManager;
+<div class="cardify messaging_sidebar">
+    @try
+    {
+        if (_svc.ListOrderResponse.Items != null || _svc.ListOrderResponse.Items.Count > 0)
+        {
+            <div class="messaging__header">
+                <div class="messaging_menu ">
+                    <a href="#" id="drop2" class="dropdown-toggle dropdown-trigger" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <span class="fal fa-inbox"></span>Lịch sử
+                        <span class="msg">@_svc.ListOrderResponse.Items.Count()</span>
+
+                    </a>
+                </div>
+            </div>
+            <div class="messaging__contents">
+                <div class="messages">
+
+                    @foreach (var item in _svc.ListOrderResponse.Items)
+                    {
+                    <div class="message">
+                        <div class="message__actions_avatar">
+                            <div class="avatar">
+                                <img src="@item.ProductImageUrl" alt="">
+                            </div>
+                        </div>
+                        <div class="message_data" @onclick="()=>Clicked(item.Id)">
+                            <div class="name_time">
+                                <div class="name">
+                                    <p>@FormatData.FormatAsPrice(item.TotalPrice)</p>
+                                </div>
+                                <span class="time">@item.OrderDate</span>
+                                <p>@item.Product</p>
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            @if (item.OrderStatus == OrderStatus.Confirmed || item.OrderStatus == OrderStatus.Processing && item.PaymentStatus.ToString() != "Paid")
+                            // thành nguyễn sửa lại chỉ trong trạng thái chờ xác nhận mới cho hủy đang ship hay giao rồi thì kh hủy + đã thanh toán thì không được hủy
+                            {
+                                <RadzenButton class="ml-3" Icon="cancel" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Outlined" Text="Hủy đơn hàng"
+                                              Click="args => OnDeleteTask(item.Id)"></RadzenButton>}
+                                @if (item.OrderStatus.ToString() != "Cancelled")
+                                {
+                                    @if (item.PaymentMode != "CashOnDelivery")
+                                    {
+                                        @if (item.PaymentStatus.ToString() != "Paid")
+                                        {
+                                            <RadzenButton class="ml-3" Icon="cancel" ButtonStyle="ButtonStyle.Warning" Variant="Variant.Outlined" Text="Thanh toán ngay"
+                                                          Click="args => RedirectToPayment(item.Id)"></RadzenButton>
+                                        }
+                                    }
+
+                                    <RadzenButton class="ml-3" Icon="ios_share" ButtonStyle="ButtonStyle.Info" Variant="Variant.Outlined"
+                                                  Click="() => ViewDetail(item.Id)" Text="Xem chi tiết "></RadzenButton>
+                                    
+                                }
+                        </div>
+
+                    </div>
+                        }                  
+                    <Pagination MetaData="@_svc.ListOrderResponse.MetaData" Spread="2" SelectedPage="SelectedPage" />
+                </div>
+            </div>
+        }
+    }
+    catch { }
+</div>
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+    private string url { get; set; }
+    private ProductParameters _productParameters = new ProductParameters();
+    protected override async Task OnInitializedAsync()
+    {
+        await GetOrders();
+    }
+    private async Task SelectedPage(int page)
+    {
+        _productParameters.PageNumber = page;
+
+        await GetOrders();
+    }
+
+    public async void RedirectToPayment(string orderId)
+    {
+        url = await _svc.GetPaymentUrl(orderId);
+        NavigationManager.NavigateTo(url);
+    }
+
+    public async Task GetOrders()
+    {
+        await _svc.GetOrders(_productParameters);
+        await _svc.GetOrderDetails(_svc.ListOrderResponse.Items.FirstOrDefault().Id.ToString());
+    }
+    public async void Clicked(string id)
+    {
+        await _svc.GetOrderDetails(id);
+    }
+
+    public async Task OnDeleteTask(string orderId)
+    {
+        var result = await dialogSvc.Confirm("Bạn có chắc muốn hủy?", "Xác nhận", new ConfirmOptions() { OkButtonText = "Có Hủy", CancelButtonText = "Không" } );
+        if (result.Value == true)
+        {
+            await _svc.CancelOrder(orderId);
+            await GetOrders();
+            StateHasChanged();
+        }
+
+    }
+
+    private void ViewDetail(string orderID)
+      => NavigationManager.NavigateTo($"/order/{orderID}");
+}

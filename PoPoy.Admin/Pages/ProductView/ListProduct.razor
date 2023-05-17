@@ -1,0 +1,134 @@
+﻿@page "/listProduct"
+@attribute [Authorize(Roles = RoleName.Admin + "," + RoleName.Staff)]
+
+@inject IConfiguration Configuration
+@inject IProductService ProductService
+@inject DialogService DialogService
+<div class="col-12">
+
+    <RadzenButton Icon="add_circle_outline" Text="Tạo sản phẩm mới" class="col-lg-4" ButtonStyle="ButtonStyle.Success" Click=@OpenCreate />
+    <div class="card">
+        <div class="card-body">
+            <h2 class="mt-4 ml-3 mb-3 card-title" style="color:#012970">Danh sách sản phẩm</h2>
+            <div class="row mt-4 ml-3">
+                <RadzenDataGrid Responsive AllowFiltering="true" AllowColumnResize="true"
+                                FilterMode="Radzen.FilterMode.Simple" PageSize="5" PagerHorizontalAlign="HorizontalAlign.Center" AllowPaging="true" AllowSorting="true" Data="@Products" TItem="ProductVM"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                LogicalFilterOperator="LogicalFilterOperator.Or"
+                                SelectionMode="DataGridSelectionMode.Single">
+                    <Columns>
+                        <RadzenDataGridColumn Filterable="false" TItem="ProductVM" Property="Id" Title="Id" Width="50px" CssClass="MyInputClass" />
+                        <RadzenDataGridColumn TItem="ProductVM" Property="Title" Title="Tên sản phẩm" CssClass="MyInputClass" />
+                        <RadzenDataGridColumn Filterable="false" TItem="ProductVM" Property="Price" Resizable="false" Title="Giá(₫)" CssClass="MyInputClass" />
+                        <RadzenDataGridColumn Filterable="false" TItem="ProductVM" Property="OriginalPrice" Resizable="false" Title="Giá gốc" CssClass="MyInputClass" />
+                        <RadzenDataGridColumn Filterable="false" TItem="ProductVM" Property="Views" Resizable="false" Title="Lượt xem" CssClass="MyInputClass" />
+
+                        <RadzenDataGridColumn TItem="ProductVM" Context="product" Filterable="false" Sortable="false" TextAlign="TextAlign.Right">
+                            <Template>
+                                <RadzenButton Text="Chỉnh sửa" Icon="edit" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Warning" Class="m-1" Click="args => OpenEdit(product.Id.ToString())">
+                                </RadzenButton>
+                                <RadzenButton Text="Xoá" Icon="delete_forever" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Danger" Class="m-1" Click="args => OnDeleteTask(product.Id)">
+                                </RadzenButton>
+                            </Template>
+                        </RadzenDataGridColumn>
+
+                    </Columns>
+                </RadzenDataGrid>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<Confirmation ConfirmationMessage="Bạn chắc chắn xóa loại hàng này?"
+              ConfirmationTitle="Xóa loại hàng"
+              @ref="DeleteConfirmation"
+              ConfirmationChanged="OnConfirmDeleteTask">
+
+</Confirmation>
+
+<Confirmation ConfirmationMessage="Bạn chắc chắn xóa sản phẩm này?"
+              ConfirmationTitle="Xóa sản phẩm"
+              @ref="DeleteConfirmation"
+              ConfirmationChanged="OnConfirmDeleteTask">
+
+</Confirmation>
+
+@code {
+    private string searchText = string.Empty;
+    private List<ProductVM> Products { get; set; } = new List<ProductVM>();
+    private List<ProductQuantity> ProductQ { get; set; } = new List<ProductQuantity>();
+    private int ProductId { set; get; }
+    private Confirmation DeleteConfirmation { set; get; }
+    public event Action<dynamic> Close;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Close += async (r) => { await GetProducts(); StateHasChanged(); };
+        DialogService.OnClose += Close;
+        await GetProducts();
+    }
+    public void Dispose()
+    {
+        // The DialogService is a singleton so it is advisable to unsubscribe.
+        DialogService.OnClose -= Close;
+    }
+
+
+    public void OnDeleteTask(int productId)
+    {
+        ProductId = productId;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDeleteTask(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            await ProductService.DeleteProduct(ProductId);
+            await GetProducts();
+            StateHasChanged();
+        }
+    }
+
+    private async Task GetProducts()
+    {
+        var pagingResponse = await ProductService.GetAllProducts();
+        if (searchText != null)
+        {
+            Products = pagingResponse;
+        }
+    }
+
+    public async Task OpenEdit(string id)
+    {
+        await DialogService.OpenAsync<EditProduct>($"Chỉnh sửa sản phẩm",
+               new Dictionary<string, object>() { { "Id", id } },
+               new DialogOptions() { Width = "1000px", Height = "712px", Resizable = true, Draggable = false, CssClass = "modal-content" });
+
+    }
+
+    public async Task OpenCreate()
+    {
+        await DialogService.OpenAsync<CreateProduct>($"Tạo mới sản phẩm"
+               , options:
+               new DialogOptions() { Width = "1200px", Height = "712px", Resizable = true, Draggable = false, CssClass = "modal-content" });
+
+    }
+
+
+    public async Task SearchProducts()
+    {
+        var pagingResponse = await ProductService.GetAllProducts();
+        if (!String.IsNullOrEmpty(searchText))
+        {
+            Products = await ProductService.SearchProduct(searchText);
+        }
+        else
+        {
+            Products = pagingResponse;
+        }
+    }
+
+
+}

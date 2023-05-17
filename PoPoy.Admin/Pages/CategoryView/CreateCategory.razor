@@ -1,0 +1,56 @@
+﻿@page "/createCategory"
+
+@inject ICategoryService CategoryService
+@inject NavigationManager NavigationManager
+@inject Radzen.DialogService dialogService;
+@attribute [Authorize(Roles = RoleName.Admin + "," + RoleName.Staff)]
+<div class="container ml-3 col-12">
+
+    <EditForm Model="Category" OnValidSubmit="Create">
+
+        <DataAnnotationsValidator></DataAnnotationsValidator>
+        <div class="text-field col-lg-12 mb-2">
+            <label for="name">Tên loại hàng</label>
+            <InputText id="name" class="text-control_input" @bind-Value="Category.Name"></InputText>
+            <ValidationMessage For="()=> Category.Name"></ValidationMessage>
+        </div>
+        <div class="text-field col-lg-12 mb-4">
+            <label class="label-select" for="name">Tình trạng</label><br />
+            <InputSelect class="form-select" @bind-Value="Category.Status">
+                @foreach (var status in Enum.GetValues(typeof(Status)))
+                {
+                    <option value="@status">@status</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="text-field col-lg-12 mb-4">
+            <label for="name">Số thứ tự</label>
+            <InputNumber id="name" class="form-control" @bind-Value="Category.SortOrder"></InputNumber>
+            <ValidationMessage For="()=> Category.SortOrder"></ValidationMessage>
+        </div>
+        <div class="text-field col-lg-12 mb-4">
+            <label for="url">Tên Url</label>
+            <InputText id="url" class="form-control" @bind-Value="Category.Url"></InputText>
+            <ValidationMessage For="()=> Category.Url"></ValidationMessage>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <RadzenButton Icon="close" Click="@((args) => dialogService.Close(false))" Variant="Variant.Flat" ButtonStyle="ButtonStyle.Light" Text="Cancel" Style="width: 120px" Class="me-1" />
+                <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Icon="add_circle" Text="Lưu lại" Style="width: 120px" />
+            </div>
+        </div>
+    </EditForm>
+
+</div>
+
+@code {
+    public CategoryCreateRequest Category = new CategoryCreateRequest();
+    private async Task Create()
+    {
+        var result = await CategoryService.CreateCategory(Category);
+        if (result)
+            NavigationManager.NavigateTo("/listCategory");
+    }
+}
+

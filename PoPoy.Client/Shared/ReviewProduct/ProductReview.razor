@@ -1,0 +1,154 @@
+﻿@inject IPublicReviewService PublicReviewService
+@inject AuthenticationStateProvider AuthProvider
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@inject IReviewService ReviewService
+@inject IToastService _toastSvc;
+
+<div class="box">
+    <div class="box-header">
+        review
+    </div>
+    <div>
+        @if (reviews is null)
+        {
+            <LoadingScreen></LoadingScreen>
+        }
+        else if (reviews.Count == 0)
+        {
+            <p>Chưa có đánh giá của khách hàng.</p>
+        }
+        else
+        {
+            @foreach (var review in reviews)
+            {
+                <div class="user-rate">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="user-info">
+                                <div class="user-avt">
+                                    <img src="/images/avatar.jpg" alt="">
+                                </div>
+                                <div class="user-name">
+                                    <span class="name">Người dùng ẩn danh</span>
+                                    <span class="rating">
+                                        <RatingStar Rating="@review.Rating"></RatingStar>
+                                    </span>
+                                    <br />
+                                    <div class="text-muted fs-6 mb-2">Vào lúc: @(review.CreateDate.ToString("dd/MM/yyyy"))</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <strong class="h3">@review.Title</strong>
+                            <div class="user-rate-content">
+                                @review.ReviewText
+                            </div>
+                            <div class="text-muted fs-6 mb-2" style="float: right;">0 người thấy đánh giá này hữu ích</div>
+                            <br />
+                            <div style="display:inline-block;">
+                                <a class="btn-flat btn-hover" href="javascript:void(0)" style="margin-right: 5px">Hữu ích</a>
+                                @if (userId == review.UserId)
+                                {
+
+                                    <a class="btn-flat btn-hover" href="javascript:void(0)" @onclick="() => OpenRate(ProductId , review.Id)">Sửa review</a>
+                                    <a class="btn-flat btn-hover" href="javascript:void(0)"
+                           @onclick="@(() => DeleteReview(review))">Xóa review</a>
+
+
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            }
+        }
+        <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage" />
+    </div>
+</div>
+<div class="container mx-auto">
+    <div class="row mx-auto mb-3 col-md-6">
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public int ProductId { get; set; }
+
+    [Parameter]
+    public EventCallback<ReviewAverageCalculatedEventArgs> OnReviewAverageCalculated { get; set; }
+    [Inject] private DialogService dialogService { get; set; }
+    private Guid userId;
+    private List<Review> reviews = new();
+    public MetaData MetaData { get; set; } = new MetaData();
+    private ProductParameters _productParameters = new ProductParameters();
+    private event Action<dynamic> OnModalClose;
+    protected override async Task OnInitializedAsync()
+    {
+        OnModalClose = async (p) => await GetReview();
+        await GetReview();
+        //reviews = await PublicReviewService.FilterByProductIdAsync(ProductId);
+        await InvokeReviewAverageCalculatedEvent();
+
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        if (Guid.TryParse(authState.User.GetUserId(), out Guid value))
+        {
+            userId = value;
+        }
+        dialogService.OnClose += OnModalClose;
+    }
+
+    
+    public void Dispose()
+    {
+        // The DialogService is a singleton so it is advisable to unsubscribe.
+        dialogService.OnClose -= OnModalClose;
+    }
+
+    private async void DeleteReview(Review review)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa bài đánh giá không?");
+        if (confirmed)
+        {
+            await ReviewService.DeleteAsync(review.Id);
+            _toastSvc.ClearAll();
+            _toastSvc.ShowInfo("Đã xóa bài đánh giá.");
+
+            //reviews = await PublicReviewService.FilterByProductIdAsync(ProductId);
+            await GetReview();
+            await InvokeReviewAverageCalculatedEvent();
+        }
+    }
+
+    private async ValueTask InvokeReviewAverageCalculatedEvent()
+    {
+        var args = new ReviewAverageCalculatedEventArgs
+        {
+            ReviewAverage = reviews.Count == 0 ? 0 : (decimal)reviews.Average(x => x.Rating),
+            ReviewCount = reviews.Count()
+        };
+
+        await OnReviewAverageCalculated.InvokeAsync(args);
+    }
+    private async Task GetReview()
+    {
+        var pagingResponse = await PublicReviewService.FilterByProductIdAsync(ProductId, _productParameters);
+        reviews = pagingResponse.Items;
+        MetaData = pagingResponse.MetaData;
+    }
+    private async Task SelectedPage(int page)
+    {
+        _productParameters.PageNumber = page;
+        await GetReview();
+    }
+    public async Task OpenRate(int productId , int reviewId)
+    {
+        await dialogService.OpenAsync<PoPoy.Client.Pages.OrderView.Rate>($"Đánh giá sản phẩm",
+              new Dictionary<string, object>() { { "ProductId", productId }, { "Mode", FormEditMode.Update }, { "reviewId" , reviewId } },
+              new DialogOptions() { Width = "400px", Height = "312px", Resizable = true, Draggable = false, CssClass = "modal-content" });
+
+    }
+}
