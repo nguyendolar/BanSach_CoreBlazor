@@ -27,21 +27,21 @@
                             {
                                 @if (item.ProductImages.Any())
                                 {
-                                    <img src="@item.ProductImages.FirstOrDefault().ImagePath" alt="">
+                                    <img src="https://simg.zalopay.com.vn/zlp-website/assets/sach_hay_nen_doc_nha_gia_kim_ea63da0d8f.jpeg" alt="">
                                     if (item.ProductImages.Skip(1).FirstOrDefault() != null)
                                     {
-                                        <img src="@item.ProductImages.Skip(1).FirstOrDefault().ImagePath" alt="">
+                                        <img src="https://simg.zalopay.com.vn/zlp-website/assets/sach_hay_nen_doc_nha_gia_kim_ea63da0d8f.jpeg" alt="">
                                     }
                                     else
                                     {
-                                        <img src="@item.ProductImages.FirstOrDefault().ImagePath" alt="">
+                                        <img src="https://simg.zalopay.com.vn/zlp-website/assets/sach_hay_nen_doc_nha_gia_kim_ea63da0d8f.jpeg" alt="">
                                     }
 
                                 }
                                 else
                                 {
-                                    <img src="@_config["BackendApiUrl"]/uploads/no-photo-available.png" alt="">
-                                    <img src="@_config["BackendApiUrl"]/uploads/no-photo-available.png" alt="">
+                                    <img src="https://simg.zalopay.com.vn/zlp-website/assets/sach_hay_nen_doc_nha_gia_kim_ea63da0d8f.jpeg" alt="">
+                                    <img src="https://simg.zalopay.com.vn/zlp-website/assets/sach_hay_nen_doc_nha_gia_kim_ea63da0d8f.jpeg" alt="">
                                 }
                             }
                             catch { }

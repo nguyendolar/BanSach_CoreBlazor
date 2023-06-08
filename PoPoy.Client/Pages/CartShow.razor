@@ -54,8 +54,8 @@
                                 <img src="@cart.Product.ProductImages.FirstOrDefault().ImagePath" class="col-sm-2" style=" height: 150px; object-fit: contain;">
                             }
                             <div class="col-sm-8">
-                                <h4 style="font-weight:bold">@cart.Product.Title</h4> <span class="xmark">X</span>
-                                <p class="badge bg-secondary" id="autos"><strong>Size Giày: @cart.SizeName</strong></p> <span class="badge bg-secondary" id="autos2"><strong>Color: @cart.ColorName</strong></span>
+                                <h4 style="font-weight:bold">@cart.Product.Title</h4> 
+                    
                                 <SelectQuantity Model="@cart" CartUpdateType="CartUpdateType.Update" MAX_QUANTITY_PRODUCT="@cart.ProductVariantQuantity" QuantityChanged="() => StateHasChanged()" />
                                 <div class="d-flex flex-row align-items-center mt-3">
                                     <i class="oi oi-trash"></i>
@@ -90,12 +90,7 @@
                                 <button class="button-43 mt-3" @onclick="@(() => CheckOut())" disabled="@buttonDisabled">Đặt hàng</button>
                             </div>
                         }
-                        @if (@paymentModel.Name == "VNPay")
-                        {
-                            <div class="d-grid gap-2 mx-auto">
-                                <button class="button-43 mt-3" @onclick="@(() => CheckOut())" disabled="@buttonDisabled">Thanh toán VNPay</button>
-                            </div>
-                        }
+   
                         @if (@paymentModel.Name == "PayPal")
                         {
                             <div class="d-grid gap-2 mx-auto">
@@ -127,7 +122,7 @@
         Name = "CashOnDelivery" // default value
     };
 
-    List<string> rdOptions = new List<string> { "CashOnDelivery", "PayPal", "VNPay" };
+    List<string> rdOptions = new List<string> { "CashOnDelivery", "PayPal"};
 
     protected override async Task OnInitializedAsync()
     {
@@ -278,7 +273,7 @@
     }
     public async Task<int> GetQuantity(int sizeid, int prodid, int colorid)
     {
-        var res = await _httpClient.GetStringAsync($"/api/product/get-product-quantity-price?sizeId={sizeid}&Prodid={prodid}&colorId={colorid}");
+        var res = await _httpClient.GetStringAsync($"/api/product/get-product-quantity-price?sizeId=1&Prodid={prodid}&colorId=4");
         var result = JsonConvert.DeserializeObject(res.ToString()) as JObject;
         var quantity = (string)result["Quantity"];
         var price = (string)result["Price"];

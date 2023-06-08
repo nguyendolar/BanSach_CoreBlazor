@@ -87,17 +87,7 @@
                             @(reviewCount)
                         </span>
                     </div>
-                    @if (_ready && product.ProductQuantities != null && product.ProductQuantities.Count > 0)
-                        {
-                    <div class="product-info-price">
 
-                            @FormatData.FormatAsPrice(Price)
-                        
-                    </div>
-                    
-                    <SelectSize productVariants="@product.ProductQuantities" Model="@cart" CartUpdateType="CartUpdateType.Add" Product_Id="@id" QuantityChanged="GetPriceProduct"></SelectSize>
-
-                    }
                     <div>
                         <button class="btn-flat btn-hover" @onclick="AddToCart">Thêm vào giỏ hàng</button>
                     </div>
@@ -145,6 +135,8 @@
     private string Price { get; set; } = "0";
     bool _ready = false;
 
+
+
     protected override async Task OnInitializedAsync()
     {
         product = new Product();
@@ -181,6 +173,8 @@
     }
     private async void AddToCart()
     {
+        cart.ColorId = 4;
+        cart.SizeId = 1;
         var stock = await GetProductQuantityAndPrice(cart.SizeId, id, cart.ColorId);
         if (cart.SizeId <= 0)
         {
