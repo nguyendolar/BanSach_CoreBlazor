@@ -16,6 +16,7 @@ namespace PoPoy.Shared.ViewModels
         [Display(Name = "Tên sản phẩm")]
         [Required(ErrorMessage = "{0} là bắt buộc")]
         public string Title { set; get; }
+        public int Price { set; get; }
         public int Quantity { get; set; }
         public string Description { set; get; }
     }

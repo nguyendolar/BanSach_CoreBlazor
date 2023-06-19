@@ -47,7 +47,7 @@ namespace PoPoy.Api.Services.ProductService
                     .Search(productParameters.searchText)
                     .Sort(productParameters.OrderBy)
                     .Include(x => x.ProductImages)
-                    .Include(x=>x.ProductQuantities)
+                    .Include(x => x.ProductQuantities)
                     .ToListAsync();
 
                 //list_product.Shuffle();
@@ -126,6 +126,7 @@ namespace PoPoy.Api.Services.ProductService
                                            join p in _dataContext.Products on pq.ProductId equals p.Id
                                            where p.Id == productId
                                            select pq.SizeId.ToString()).ToListAsync();
+            var productQuan = await _dataContext.ProductQuantities.FirstOrDefaultAsync(x => x.ProductId == productId);
 
             var productViewModel = new ProductVM()
             {
@@ -135,7 +136,8 @@ namespace PoPoy.Api.Services.ProductService
                 Description = product.Description,
                 //OriginalPrice = product.OriginalPrice,
                 //Price = product.Price,
-      
+                Quantity = productQuan.Quantity,
+                Price = productQuan.Price,
                 Views = product.Views,
                 Categories = categories,
                 Sizes = productQuantities,
@@ -147,9 +149,7 @@ namespace PoPoy.Api.Services.ProductService
         {
             var product = new Product()
             {
-                //Price = request.Price,
                 Title = request.Title,
-                //OriginalPrice = request.OriginalPrice,
                 Description = request.Description,
                 Views = 0,
                 DateCreated = DateTime.Now
@@ -159,6 +159,23 @@ namespace PoPoy.Api.Services.ProductService
             var result = await _dataContext.SaveChangesAsync();
             if (result == 1)
             {
+                var proCate = new ProductInCategory()
+                {
+                    ProductId = product.Id,
+                    CategoryId = 5
+                };
+
+                _dataContext.ProductInCategories.Add(proCate);
+                var proQuan = new ProductQuantity()
+                {
+                    ProductId = product.Id,
+                    SizeId = 1,
+                    ColorId = 4,
+                    Quantity = request.Quantity,
+                    Price = request.Price
+                };
+                _dataContext.ProductQuantities.Add(proQuan);
+                await _dataContext.SaveChangesAsync();
                 return true;
             }
             return false;
@@ -176,6 +193,9 @@ namespace PoPoy.Api.Services.ProductService
             var result = await _dataContext.SaveChangesAsync();
             if (result == 1)
             {
+                /*var proQuan = await _dataContext.ProductQuantities.FindAsync(request.Id);
+                proQuan.Quantity = request.Quantity;
+                proQuan.Price = request.Price;*/
                 return true;
             }
             return false;
@@ -184,8 +204,23 @@ namespace PoPoy.Api.Services.ProductService
         public async Task<int> DeleteProduct(int productId)
         {
             var product = await _dataContext.Products.FirstOrDefaultAsync(x => x.Id == productId);
-            if (product == null) throw new Exception($"Cannot find image: {productId}");
-
+            if (product == null) throw new Exception($"Cannot find product: {productId}");
+            var proImg = _dataContext.ProductImages.Where(x => x.ProductId == productId).ToList();
+            if (proImg.Any())
+            {
+                _dataContext.ProductImages.RemoveRange(proImg);
+            }
+            var proQuan = _dataContext.ProductQuantities.Where(x => x.ProductId == productId).ToList();
+            if (proQuan.Any())
+            {
+                _dataContext.ProductQuantities.RemoveRange(proQuan);
+            }
+            var proCa = _dataContext.ProductInCategories.Where(x => x.ProductId == productId).ToList();
+            if (proCa.Any())
+            {
+                _dataContext.ProductInCategories.RemoveRange(proCa);
+            }
+            await _dataContext.SaveChangesAsync();
 
             _dataContext.Products.Remove(product);
 
@@ -254,7 +289,6 @@ namespace PoPoy.Api.Services.ProductService
         public async Task<ServiceResponse<List<UploadResult>>> UploadProductImage(List<IFormFile> files, int productId)
         {
             List<UploadResult> uploadResults = new List<UploadResult>();
-
             foreach (var file in files)
             {
                 var uploadResult = new UploadResult();
@@ -272,15 +306,27 @@ namespace PoPoy.Api.Services.ProductService
                 uploadResult.StoredFileName = untrustedFileName;
                 uploadResult.ContentType = file.ContentType;
                 uploadResults.Add(uploadResult);
-
-                var productImg = new ProductImage()
+                var check = _dataContext.ProductImages.Where(x => x.ProductId == productId).ToList();
+                if (check.Any())
                 {
-                    ProductId = productId,
-                    ImagePath = _configuration["ApiUrl"] + "/uploads/" + untrustedFileName,
-                    DateCreated = DateTime.Now,
-                    FileSize = file.Length
-                };
-                _dataContext.ProductImages.Add(productImg);
+                    var productImg = check.FirstOrDefault();
+                    productImg.ImagePath = _configuration["ApiUrl"] + "/uploads/" + untrustedFileName;
+                    productImg.DateCreated = DateTime.Now;
+                    productImg.FileSize = file.Length;
+                    _dataContext.ProductImages.Update(productImg);
+                }
+                else
+                {
+                    var productImg = new ProductImage()
+                    {
+                        ProductId = productId,
+                        ImagePath = _configuration["ApiUrl"] + "/uploads/" + untrustedFileName,
+                        DateCreated = DateTime.Now,
+                        FileSize = file.Length
+                    };
+                    _dataContext.ProductImages.Add(productImg);
+                }
+
             }
 
             await _dataContext.SaveChangesAsync();
@@ -311,27 +357,10 @@ namespace PoPoy.Api.Services.ProductService
             {
                 return new ServiceErrorResponse<bool>($"Sản phẩm với id {id} không tồn tại");
             }
-            foreach (var category in request.Categories)
-            {
-                var productInCategory = await _dataContext.ProductInCategories
-                    .FirstOrDefaultAsync(x => x.CategoryId == int.Parse(category.Id)
-
-                    && x.ProductId == id);
-                if (productInCategory != null && category.Selected == false)
-                {
-                    _dataContext.ProductInCategories.Remove(productInCategory);
-                }
-                else if (productInCategory == null && category.Selected)
-                {
-                    await _dataContext.ProductInCategories.AddAsync(new ProductInCategory()
-                    {
-                        CategoryId = int.Parse(category.Id),
-                        ProductId = id
-                    });
-                    product.CategoryId = int.Parse(category.Id);
-                    _dataContext.Products.Update(product);
-                }
-            }
+            var category = request.Categories.FirstOrDefault();
+            var productInCategory = await _dataContext.ProductInCategories.FindAsync(id);
+            productInCategory.CategoryId = Int32.Parse(category.Id);
+            _dataContext.ProductInCategories.Update(productInCategory);
             await _dataContext.SaveChangesAsync();
             return new ServiceSuccessResponse<bool>();
         }
@@ -399,7 +428,7 @@ namespace PoPoy.Api.Services.ProductService
                             Price = item.Price
                         });
                     }
-                    else if (productQuantity != null && item.Selected == true 
+                    else if (productQuantity != null && item.Selected == true
                         && (productQuantity.Quantity != item.Qty || productQuantity.Price != item.Price))
                     {
                         productQuantity.Quantity = item.Qty;
@@ -561,8 +590,8 @@ namespace PoPoy.Api.Services.ProductService
             //var result = new List<string>();
             var temp = new List<int>();
             var list_quantity = await _dataContext.ProductQuantities.Where(x => x.ProductId == productId)
-                .Include(x=>x.Color)
-                .Include(x=>x.Size)
+                .Include(x => x.Color)
+                .Include(x => x.Size)
                 .ToListAsync();
 
             object result = new

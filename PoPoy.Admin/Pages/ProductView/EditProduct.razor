@@ -50,10 +50,15 @@ else
                             <ValidationMessage For="()=> Product.Price"></ValidationMessage>
                         </div>
                         <div class="text-field col-lg-12 mb-4">
+                            <label for="price">Số lượng</label>
+                            <InputNumber id="quantity" @bind-Value="Product.Quantity"></InputNumber>
+                            <ValidationMessage For="()=> Product.Quantity"></ValidationMessage>
+                        </div>
+                        @*<div class="text-field col-lg-12 mb-4">
                             <label for="originalPrice">Giá gốc</label>
                             <InputNumber id="originalPrice" @bind-Value="Product.OriginalPrice"></InputNumber>
                             <ValidationMessage For="()=> Product.OriginalPrice"></ValidationMessage>
-                        </div>
+                        </div>*@
                         @try
                         {
 
@@ -98,14 +103,14 @@ else
                     </RadzenCard>
                 </RadzenTabsItem>
 
-                <RadzenTabsItem Text="Thêm/chỉnh sửa thuộc tính">
+               @* <RadzenTabsItem Text="Thêm/chỉnh sửa thuộc tính">
                    <AssignSize Id="@Id"></AssignSize>
                   
                 </RadzenTabsItem>
                 <RadzenTabsItem Text="Các thuộc tính của sản phẩm này">
                    <ProductVariant Id="@Id"></ProductVariant>
                   
-                </RadzenTabsItem>
+                </RadzenTabsItem>*@
 
             </Tabs>
         </RadzenTabs>

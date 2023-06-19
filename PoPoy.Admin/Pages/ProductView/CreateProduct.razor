@@ -34,12 +34,17 @@
                         <ValidationMessage For="()=> Product.Description"></ValidationMessage>
 
                     </div>
-                    @*<div class="text-field col-lg-12 mb-4">
+                    <div class="text-field col-lg-12 mb-4">
                         <label for="price">Giá</label>
                         <InputNumber id="price" @bind-Value="Product.Price"></InputNumber>
                         <ValidationMessage For="()=> Product.Price"></ValidationMessage>
                     </div>
                     <div class="text-field col-lg-12 mb-4">
+                        <label for="price">Số lượng</label>
+                        <InputNumber id="quantity" @bind-Value="Product.Quantity"></InputNumber>
+                        <ValidationMessage For="()=> Product.Quantity"></ValidationMessage>
+                    </div>
+                    @*<div class="text-field col-lg-12 mb-4">
                         <label for="originalPrice">Giá gốc</label>
                         <InputNumber id="originalPrice" @bind-Value="Product.OriginalPrice"></InputNumber>
                         <ValidationMessage For="()=> Product.OriginalPrice"></ValidationMessage>

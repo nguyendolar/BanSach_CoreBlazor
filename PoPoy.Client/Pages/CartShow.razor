@@ -75,7 +75,7 @@
             <div class="col-sm-3">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-subtitle mb-2">Tổng : @(CalcTotalQuantity()) sản phẩm (đã bao gồm <span style="color:tomato">10%</span> thuế)  </h5>
+                        <h5 class="card-subtitle mb-2">Tổng : @(CalcTotalQuantity()) sản phẩm   </h5>
                         <h4 class="card-title text-danger priceTotal">@CalcTotalAmount().ToString("n0") ₫</h4>
                         <div style="text-align:left;margin:0px;">
                             <EditForm Model="paymentModel">
@@ -134,7 +134,7 @@
     }
 
     private decimal CalcTotalAmount()
-        => carts.Sum(x => x.CalcAmount() + 100000);
+        => carts.Sum(x => x.CalcAmount());
 
     private int CalcTotalQuantity()
         => carts.Sum(x => x.Quantity);

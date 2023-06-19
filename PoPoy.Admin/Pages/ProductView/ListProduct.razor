@@ -9,7 +9,7 @@
     <RadzenButton Icon="add_circle_outline" Text="Tạo sản phẩm mới" class="col-lg-4" ButtonStyle="ButtonStyle.Success" Click=@OpenCreate />
     <div class="card">
         <div class="card-body">
-            <h2 class="mt-4 ml-3 mb-3 card-title" style="color:#012970">Danh sách sản phẩm</h2>
+            <h2 class="mt-4 ml-3 mb-3 card-title" style="color:#012970">Danh sách sản phẩam</h2>
             <div class="row mt-4 ml-3">
                 <RadzenDataGrid Responsive AllowFiltering="true" AllowColumnResize="true"
                                 FilterMode="Radzen.FilterMode.Simple" PageSize="5" PagerHorizontalAlign="HorizontalAlign.Center" AllowPaging="true" AllowSorting="true" Data="@Products" TItem="ProductVM"
@@ -20,8 +20,8 @@
                         <RadzenDataGridColumn Filterable="false" TItem="ProductVM" Property="Id" Title="Id" Width="50px" CssClass="MyInputClass" />
                         <RadzenDataGridColumn TItem="ProductVM" Property="Title" Title="Tên sản phẩm" CssClass="MyInputClass" />
                         <RadzenDataGridColumn Filterable="false" TItem="ProductVM" Property="Price" Resizable="false" Title="Giá(₫)" CssClass="MyInputClass" />
-                        <RadzenDataGridColumn Filterable="false" TItem="ProductVM" Property="OriginalPrice" Resizable="false" Title="Giá gốc" CssClass="MyInputClass" />
-                        <RadzenDataGridColumn Filterable="false" TItem="ProductVM" Property="Views" Resizable="false" Title="Lượt xem" CssClass="MyInputClass" />
+                        @*<RadzenDataGridColumn Filterable="false" TItem="ProductVM" Property="OriginalPrice" Resizable="false" Title="Giá gốc" CssClass="MyInputClass" />
+                        <RadzenDataGridColumn Filterable="false" TItem="ProductVM" Property="Views" Resizable="false" Title="Lượt xem" CssClass="MyInputClass" />*@
 
                         <RadzenDataGridColumn TItem="ProductVM" Context="product" Filterable="false" Sortable="false" TextAlign="TextAlign.Right">
                             <Template>

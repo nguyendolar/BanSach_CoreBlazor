@@ -19,7 +19,7 @@
         {
             foreach (var item in _productSvc.Products.Items)
             {
-                <div class="col-4 col-md-4 col-sm-12">
+                <div class="col-4 col-md-3 col-sm-12">
                     <div class="product-card">
                         <div class="product-card-img">
 
@@ -27,21 +27,13 @@
                             {
                                 @if (item.ProductImages.Any())
                                 {
-                                    <img src="https://simg.zalopay.com.vn/zlp-website/assets/sach_hay_nen_doc_nha_gia_kim_ea63da0d8f.jpeg" alt="">
-                                    if (item.ProductImages.Skip(1).FirstOrDefault() != null)
-                                    {
-                                        <img src="https://simg.zalopay.com.vn/zlp-website/assets/sach_hay_nen_doc_nha_gia_kim_ea63da0d8f.jpeg" alt="">
-                                    }
-                                    else
-                                    {
-                                        <img src="https://simg.zalopay.com.vn/zlp-website/assets/sach_hay_nen_doc_nha_gia_kim_ea63da0d8f.jpeg" alt="">
-                                    }
-
+                                    <img style="width : 100%; height : 300px !important" src="@item.ProductImages.FirstOrDefault().ImagePath" alt="">
+                                    <img style="width : 100%; height : 300px !important" src="@item.ProductImages.FirstOrDefault().ImagePath" alt="">
                                 }
-                                else
+                                else    
                                 {
-                                    <img src="https://simg.zalopay.com.vn/zlp-website/assets/sach_hay_nen_doc_nha_gia_kim_ea63da0d8f.jpeg" alt="">
-                                    <img src="https://simg.zalopay.com.vn/zlp-website/assets/sach_hay_nen_doc_nha_gia_kim_ea63da0d8f.jpeg" alt="">
+                                    <img style="width : 100%; height : 300px !important" src="https://simg.zalopay.com.vn/zlp-website/assets/sach_hay_nen_doc_nha_gia_kim_ea63da0d8f.jpeg" alt="">
+                                    <img style="width : 100%; height : 300px !important" src="https://simg.zalopay.com.vn/zlp-website/assets/sach_hay_nen_doc_nha_gia_kim_ea63da0d8f.jpeg" alt="">
                                 }
                             }
                             catch { }
@@ -51,12 +43,12 @@
                             <div class="product-btn">
                                 <a href="/product-detail/@item.Id" class="btn-flat btn-hover btn-shop-now">mua ngay</a>
                             </div>
-                            <div class="product-card-name" style="font-size: 14px">
-                                @item.Title | Lượt xem: @item.Views
+                            <div class="product-card-name" style="font-size: 14px;height : 41px">
+                                @item.Title
                             </div>
-                            <div class="product-card-info">
+                            @*<div class="product-card-info">
                                 @item.ReviewAverage<i class="fa fa-star"></i> | Đã bán: @item.CheckoutCount
-                            </div>
+                            </div>*@
                             <div class="product-card-price">
                                 <span class="curr-price" style="font-size: 14px">@GetPriceText(item)</span>
                                 
