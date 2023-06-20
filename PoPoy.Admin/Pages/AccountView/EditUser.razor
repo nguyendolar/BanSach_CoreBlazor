@@ -18,15 +18,15 @@ else
                         <DataAnnotationsValidator></DataAnnotationsValidator>
                         <div class="text-field col-lg-12 mb-4">
                             <label for="lastname">Họ</label>
-                            <InputText id="lastname" class="form-control" @bind-Value="User.UserName"></InputText>
-                            <ValidationMessage For="()=> User.UserName"></ValidationMessage>
+                            <InputText id="lastname" class="form-control" @bind-Value="User.LastName"></InputText>
+                            <ValidationMessage For="()=> User.LastName"></ValidationMessage>
                         </div>
                         <div class="text-field col-lg-12 mb-4">
                             <label for="firstname">Tên</label>
                             <InputText id="firstname" class="form-control" @bind-Value="User.FirstName"></InputText>
                             <ValidationMessage For="()=> User.FirstName"></ValidationMessage>
                         </div>
-                        <div class="text-field col-lg-12 mb-4">
+                        <div class="text-field col-lg-12 mb-4" style="display : none !important">
                             <label for="dob">Ngày tháng sinh</label>
                             <InputDate id="dob" class="form-control" @bind-Value="User.Dob"></InputDate>
                             <ValidationMessage For="()=> User.Dob"></ValidationMessage>
@@ -48,7 +48,7 @@ else
                         </div>
 
                         <div class="text-field col-lg-12 mb-4">
-                            <label for="password">Mật khẩu mới</label>
+                            <label for="password">Nhập mật khẩu mới nếu thay đổi mật khẩu</label>
                             <InputText id="password" type="password" class="form-control" @bind-Value="User.Password"></InputText>
                             <ValidationMessage For="()=> User.Password"></ValidationMessage>
                         </div>

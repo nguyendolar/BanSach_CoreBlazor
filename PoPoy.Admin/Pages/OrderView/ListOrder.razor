@@ -18,19 +18,19 @@
                         <Template>
                             <RadzenButton Text="Xem" Icon="edit" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Dark" Class="m-1" Click="args => OpenDetail(product.Id.ToString())">
                             </RadzenButton>
-                            <RadzenButton Text="Xoá" Icon="delete_forever" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Danger" Class="m-1" Click="args => OnDeleteTask(product.Id)">
-                            </RadzenButton>
+                            @*<RadzenButton Text="Xoá" Icon="delete_forever" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Danger" Class="m-1" Click="args => OnDeleteTask(product.Id)">
+                            </RadzenButton>*@
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn Width="161px" Frozen="true" TItem="Order" Property="Id" Title="Mã đơn hàng" CssClass="MyInputClass" />
 
-                    <RadzenDataGridColumn TItem="Order" Filterable="false" Property="TotalPrice" Title="Tổng đơn hàng" CssClass="MyInputClass" />
+                    <RadzenDataGridColumn TItem="Order" Filterable="false" Property="TotalPrice" Title="Tổng tiền" CssClass="MyInputClass" />
                     <RadzenDataGridColumn TItem="Order" Property="PaymentMode" Title="Phương thức thanh toán" CssClass="MyInputClass" />
                     <RadzenDataGridColumn TItem="Order" Property="PaymentStatus" Title="Tình trạng thanh toán" CssClass="MyInputClass" />
                     <RadzenDataGridColumn TItem="Order" Property="OrderStatus" Title="Tình trạng đơn hàng" CssClass="MyInputClass" />
                     <RadzenDataGridColumn TItem="Order" Context="order" Title="Tên người dùng">
                         <Template>
-                            @Users.FirstOrDefault(x => x.Id == order.UserId).FirstName @Users.FirstOrDefault(x => x.Id == order.UserId).LastName
+                            @Users.FirstOrDefault(x => x.Id == order.UserId).LastName @Users.FirstOrDefault(x => x.Id == order.UserId).FirstName
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Order" Context="order" Title="Địa chỉ">

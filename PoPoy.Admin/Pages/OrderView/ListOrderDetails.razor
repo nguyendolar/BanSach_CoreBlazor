@@ -142,7 +142,7 @@
                         <div class="d-flex justify-content-center align-items-center">
                             <div>
 
-                                <h2 style="color:#012970">Đã bàn giao cho <b>@(order.Shipper != null ? order.Shipper.FirstName + " "+  order.Shipper.LastName : "")</b> !</h2>
+                                <h2 style="color:#012970">Đã bàn giao cho <b>@(order.Shipper != null ? order.Shipper.LastName + " " + order.Shipper.FirstName : "")</b> !</h2>
                             </div>
 
                             
@@ -153,7 +153,7 @@
                         <div class="d-flex justify-content-center align-items-center">
                             <div>
 
-                                <h2 style="color:#012970">Shipper <b>@(order.Shipper != null ? order.Shipper.FirstName + " " + order.Shipper.LastName : "") </b> đang giao hàng !</h2>
+                                <h2 style="color:#012970">Shipper <b>@(order.Shipper != null ? order.Shipper.LastName + " " + order.Shipper.FirstName : "") </b> đang giao hàng !</h2>
                             </div>
 
                            
@@ -165,7 +165,7 @@
                             @if (order.OrderStatus == OrderStatus.Delivered)
                             {
                                 <div>
-                                    <h2 style="color:#012970">Đơn hàng được <b>@(order.Shipper != null ? order.Shipper?.FirstName + " " + order.Shipper?.LastName : "") </b> giao thành công !</h2>
+                                    <h2 style="color:#012970">Đơn hàng được <b>@(order.Shipper != null ? order.Shipper?.LastName + " " + order.Shipper?.FirstName : "") </b> giao thành công !</h2>
                                 </div>
                                 
 

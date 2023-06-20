@@ -15,7 +15,7 @@
                             LogicalFilterOperator="LogicalFilterOperator.Or"
                             SelectionMode="DataGridSelectionMode.Single">
                 <Columns>
-                    <RadzenDataGridColumn Frozen="true" Width="421px" Title="Thao tác" TItem="Order" Context="item" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                    <RadzenDataGridColumn Frozen="true" Width="200px" Title="Thao tác" TItem="Order" Context="item" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
                         <Template>
                             <RadzenButton Text="Thành công" Icon="edit" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Success" Class="m-1" Click="args => UpdateStatus(item.Id,OrderStatus.Delivered ,PaymentStatus.Paid, item.UserId , item.Shipper?.LastName)">
                             </RadzenButton>
@@ -25,12 +25,12 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn Width="161px" Frozen="true" TItem="Order" Property="Id" Title="Mã đơn hàng" CssClass="MyInputClass" />
 
-                    <RadzenDataGridColumn TItem="Order" Filterable="false" Property="TotalPrice" Title="Tổng đơn hàng" CssClass="MyInputClass" />
+                    <RadzenDataGridColumn TItem="Order" Filterable="false" Property="TotalPrice" Title="Tổng tiền" CssClass="MyInputClass" />
                     <RadzenDataGridColumn TItem="Order" Property="PaymentMode" Title="Phương thức thanh toán" CssClass="MyInputClass" />
                     <RadzenDataGridColumn TItem="Order" Property="OrderStatus" Title="Tình trạng đơn hàng" CssClass="MyInputClass" />
                     <RadzenDataGridColumn TItem="Order" Context="order" Title="Tên người dùng">
                         <Template>
-                            @(order.User?.FirstName + " " + order.User?.LastName)
+                            @(order.User?.LastName + " " + order.User?.FirstName)
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Order" Context="item" Title="Địa chỉ">

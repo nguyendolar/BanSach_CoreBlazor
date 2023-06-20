@@ -215,8 +215,9 @@ namespace PoPoy.Api.Services.AuthService
             user.PhoneNumber = request.PhoneNumber;
             user.UserName = request.UserName;
             user.CreatedDate = DateTime.UtcNow;
+            user.EmailConfirmed = true;
             var result = await _userManager.CreateAsync(user, request.Password);
-            foreach (var roleName in request.Roles)
+            foreach (var roleName in request.Roles.Where(x => !x.Equals("Staff")))
             {
                 await _userManager.AddToRoleAsync(user, roleName);
             }
@@ -345,14 +346,11 @@ namespace PoPoy.Api.Services.AuthService
             await _userManager.RemoveFromRolesAsync(user, removedRoles);
 
             var addedRoles = request.Roles.Where(x => x.Selected).Select(x => x.Name).ToList();
-            foreach (var roleName in addedRoles)
+            var roleNameADD = addedRoles.FirstOrDefault();
+            if (await _userManager.IsInRoleAsync(user, roleNameADD) == false)
             {
-                if (await _userManager.IsInRoleAsync(user, roleName) == false)
-                {
-                    await _userManager.AddToRoleAsync(user, roleName);
-                }
+                await _userManager.AddToRoleAsync(user, roleNameADD);
             }
-
             return new ServiceSuccessResponse<bool>();
         }
 
@@ -393,7 +391,7 @@ namespace PoPoy.Api.Services.AuthService
 
         public async Task<List<RoleVM>> GetAllRoles()
         {
-            var roles = await _roleManager.Roles
+            var roles = await _roleManager.Roles.Where(x => x.Name != "Staff")
                 .Select(x => new RoleVM()
                 {
                     Id = x.Id,
@@ -456,8 +454,14 @@ namespace PoPoy.Api.Services.AuthService
             user.LastName = request.LastName;
             user.PhoneNumber = request.PhoneNumber;
             user.UserName = request.UserName;
-            user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, request.Password);
-
+            if (String.IsNullOrEmpty(request.Password))
+            {
+                user.PasswordHash = user.PasswordHash;
+            }
+            else
+            {
+                user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, request.Password);
+            }
             var result = await _userManager.UpdateAsync(user);
 
             if (result.Succeeded)
@@ -549,7 +553,7 @@ namespace PoPoy.Api.Services.AuthService
                         bodyBuilder = bodyBuilder.Replace("[payment-mode]", order.PaymentMode);
                         bodyBuilder = bodyBuilder.Replace("[total-price]", order.TotalPrice.ToString());
                         bodyBuilder = bodyBuilder.Replace("[all-products]", String.Join("", products.ToArray()));
-                        bodyBuilder = bodyBuilder.Replace("[user-address]", userAddress.Street+" "+userAddress.Ward+" "+userAddress.District+" "+userAddress.City);
+                        bodyBuilder = bodyBuilder.Replace("[user-address]", userAddress.Street + " " + userAddress.Ward + " " + userAddress.District + " " + userAddress.City);
                         EmailDto emailDto = new EmailDto
                         {
                             Subject = $"[Popoy] Xác nhận đơn hàng #{OrderId.ToString().ToUpper()}",
@@ -661,7 +665,7 @@ namespace PoPoy.Api.Services.AuthService
         public async Task<List<SelectItem>> GetShippers()
         {
             var list = await _userManager.GetUsersInRoleAsync(roleName: RoleName.Shipper);
-            return list.Select(p => new SelectItem { Id = p.Id.ToString(), Name = p.FirstName + " " + p.LastName }).ToList();
+            return list.Select(p => new SelectItem { Id = p.Id.ToString(), Name = p.LastName + " " + p.FirstName }).ToList();
 
         }
         public async Task<ServiceResponse<Address>> AddOrUpdateAddress(Address address, Guid userId)
@@ -850,7 +854,7 @@ namespace PoPoy.Api.Services.AuthService
         public async Task<ServiceResponse<bool>> UpdateUserProfile(User user)
         {
             var findUser = await _userManager.FindByIdAsync(user.Id.ToString());
-            if(findUser != null)
+            if (findUser != null)
             {
                 try
                 {
@@ -870,9 +874,9 @@ namespace PoPoy.Api.Services.AuthService
                 {
 
                 }
-                
+
             }
-            
+
             return new ServiceErrorResponse<bool>("Cập nhật không thành công");
         }
 
@@ -880,7 +884,7 @@ namespace PoPoy.Api.Services.AuthService
         {
             var user = await _userManager.FindByIdAsync(id);
 
-            if(user == null)
+            if (user == null)
             {
                 return false;
             }

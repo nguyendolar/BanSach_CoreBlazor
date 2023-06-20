@@ -152,7 +152,8 @@ namespace PoPoy.Api.Services.ProductService
                 Title = request.Title,
                 Description = request.Description,
                 Views = 0,
-                DateCreated = DateTime.Now
+                DateCreated = DateTime.Now,
+                CategoryId = 5
             };
 
             _dataContext.Products.Add(product);
@@ -193,9 +194,11 @@ namespace PoPoy.Api.Services.ProductService
             var result = await _dataContext.SaveChangesAsync();
             if (result == 1)
             {
-                /*var proQuan = await _dataContext.ProductQuantities.FindAsync(request.Id);
+                var proQuan = await _dataContext.ProductQuantities.FirstOrDefaultAsync(x => x.ProductId == request.Id);
                 proQuan.Quantity = request.Quantity;
-                proQuan.Price = request.Price;*/
+                proQuan.Price = request.Price;
+                _dataContext.ProductQuantities.Update(proQuan);
+                await _dataContext.SaveChangesAsync();
                 return true;
             }
             return false;
@@ -357,10 +360,21 @@ namespace PoPoy.Api.Services.ProductService
             {
                 return new ServiceErrorResponse<bool>($"Sản phẩm với id {id} không tồn tại");
             }
-            var category = request.Categories.FirstOrDefault();
-            var productInCategory = await _dataContext.ProductInCategories.FindAsync(id);
-            productInCategory.CategoryId = Int32.Parse(category.Id);
-            _dataContext.ProductInCategories.Update(productInCategory);
+            var category = request.Categories.FirstOrDefault(x => x.Selected);
+            var productInCategory = await _dataContext.ProductInCategories.FirstOrDefaultAsync(x => x.ProductId == id);
+            if (productInCategory != null)
+            {
+                _dataContext.ProductInCategories.Remove(productInCategory);
+                await _dataContext.SaveChangesAsync();
+            }
+            await _dataContext.ProductInCategories.AddAsync(new ProductInCategory()
+            {
+                CategoryId = int.Parse(category.Id),
+                ProductId = id
+            });
+            product.CategoryId = int.Parse(category.Id);
+            _dataContext.Products.Update(product);
+
             await _dataContext.SaveChangesAsync();
             return new ServiceSuccessResponse<bool>();
         }

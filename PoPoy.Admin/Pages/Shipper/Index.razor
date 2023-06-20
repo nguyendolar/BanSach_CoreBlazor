@@ -21,7 +21,7 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <RadzenText TextStyle="TextStyle.Overline" Class="rz-color-primary-light d-flex mt-3 mb-0">Họ và tên</RadzenText>
-                                                <RadzenText TextStyle="TextStyle.Body1"><b>@(item.User?.FirstName + " " + item.User?.LastName)</b></RadzenText>
+                                                <RadzenText TextStyle="TextStyle.Body1"><b>@(item.User?.LastName + " " + item.User?.FirstName)</b></RadzenText>
                                                 <RadzenText TextStyle="TextStyle.Overline" Class="rz-color-primary-light d-flex mt-3 mb-0">Địa chỉ</RadzenText>
                                                 <RadzenText TextStyle="TextStyle.Body1"><b>@(item.Address?.Street + ", " + item.Address?.Ward + ", " + item.Address?.District + ", " + item.Address?.City)</b></RadzenText>
                                             </div>
@@ -55,7 +55,7 @@
                                         </div>
                                     }
                                     <div class="text-end">
-                                        <RadzenButton Click="() => UpdateStatus(item.Id , OrderStatus.Processing,item.UserId, item.Shipper?.FirstName)" Icon="close" Variant="Variant.Flat" ButtonStyle="ButtonStyle.Danger" Text="Từ chối" Class="me-1" />
+                                        @*<RadzenButton Click="() => UpdateStatus(item.Id , OrderStatus.Processing,item.UserId, item.Shipper?.FirstName)" Icon="close" Variant="Variant.Flat" ButtonStyle="ButtonStyle.Danger" Text="Từ chối" Class="me-1" />*@
                                         <RadzenButton Click="() => UpdateStatus(item.Id , OrderStatus.Delivering,item.UserId, item.Shipper?.FirstName)" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Icon="check_circle" Text="Chấp nhận" />
                                     </div>
                                 </RadzenCard>

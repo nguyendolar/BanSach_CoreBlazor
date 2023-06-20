@@ -256,14 +256,14 @@ namespace PoPoy.Api.Services.DashBoard
         {
             try
             {
-                var orderDetails = await dataContext.OrderDetails.Include(p => p.Order).ThenInclude(p => p.User).Include(p => p.Product).OrderByDescending(p => p.Order.OrderDate).Select(p => new ReportOrderNew
+                var orderDetails = await dataContext.Orders.Include(p => p.User).OrderByDescending(p => p.OrderDate).Select(p => new ReportOrderNew
                 {
-                    FullName = p.Order.User.FirstName + " " + p.Order.User.LastName,
-                    Price = p.Price,
-                    ProductName = p.Product.Title,
-                    ProductId = p.ProductId,
-                    OrderId = p.Order.Id,
-                    Status = p.Order.OrderStatus,
+                    FullName = p.User.LastName + " " + p.User.FirstName,
+                    Price = 1,
+                    ProductName = "name",
+                    ProductId = 1,
+                    OrderId = p.Id,
+                    Status = p.OrderStatus,
 
                 }).Take(10).ToListAsync();
 

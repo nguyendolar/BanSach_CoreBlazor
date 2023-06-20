@@ -11,7 +11,7 @@
     <div class="row">
 
         <!-- Left side columns -->
-        <div class="col-lg-8">
+        <div class="col-lg-12">
             <div class="row">
 
                 <!-- Sales Card -->
@@ -91,7 +91,7 @@
                 <!-- Customers Card -->
                 <div class="col-xxl-4 col-xl-12">
 
-                    <div class="card info-card customers-card">
+                    @*<div class="card info-card customers-card">
 
                         <div class="filter">
                             <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
@@ -104,9 +104,9 @@
                                 <li><a class="dropdown-item" @onclick="() => LoadDataReport(new ReportSearchModel{ReportDate = ReportDateType.Month, ReportType = ReportType.Customer})">Tháng</a></li>
                                 <li><a class="dropdown-item" @onclick="() => LoadDataReport(new ReportSearchModel{ReportDate = ReportDateType.Year, ReportType = ReportType.Customer})">Năm</a></li>
                             </ul>
-                        </div>
+                        </div>*@
 
-                        <div class="card-body">
+                        @*<div class="card-body">
                             @{
                                 var titleCustomer = ReportCustomer.DateType == ReportDateType.Day ? "ngày" : ReportInCome.DateType == ReportDateType.Month ? "tháng" : "năm";
                             }
@@ -123,8 +123,8 @@
                                 </div>
                             </div>
 
-                        </div>
-                    </div>
+                        </div>*@
+                   @* </div>*@
 
                 </div><!-- End Customers Card -->
                 <!-- Reports -->
@@ -144,11 +144,11 @@
                                 </ul>
                             </div>*@
 
-                        <div class="card-body">
+                       @* <div class="card-body">
                             <h5 class="card-title">Thu nhập trong tháng <span></span></h5>
 
                             <!-- Line Chart -->
-                            <div id="reportsChart">
+                            <div id="reportsChart">*@
 
                                 @*   <RadzenChart >
                                         <RadzenAreaSeries  Smooth="true" Data="@orderChart" CategoryProperty="Date" Title="Tuan nay" ValueProperty="Count" RenderingOrder="1">
@@ -162,7 +162,7 @@
                                         </RadzenValueAxis>
                                     </RadzenChart>*@
 
-                                <RadzenChart>
+                               @* <RadzenChart>
                                     <RadzenAreaSeries Smooth="true" Data="@orderChart.ChartNew" CategoryProperty="Date" Title="Tháng này" ValueProperty="Count" RenderingOrder="1">
                                         <RadzenSeriesDataLabels />
                                     </RadzenAreaSeries>
@@ -174,13 +174,13 @@
                                         <RadzenGridLines Visible="true" />
                                         <RadzenAxisTitle Text="VND" />
                                     </RadzenValueAxis>
-                                </RadzenChart>
-                            </div>
+                                </RadzenChart>*@
+                           @* </div>
 
 
                             <!-- End Line Chart -->
 
-                        </div>
+                        </div>*@
 
                     </div>
                 </div><!-- End Reports -->
@@ -209,8 +209,8 @@
                                     <tr>
                                         <th scope="col">#</th>
                                         <th scope="col">Người mua</th>
-                                        <th scope="col">Sản phẩm</th>
-                                        <th scope="col">Giá</th>
+                                       @* <th scope="col">Sản phẩm</th>
+                                        <th scope="col">Giá</th>*@
                                         <th scope="col">Trạng thái</th>
                                     </tr>
                                 </thead>
@@ -220,8 +220,8 @@
                                         <tr>
                                             <th scope="row"><a href="/order/@item.OrderId">#@item.OrderId</a></th>
                                             <td>@item.FullName</td>
-                                            <td><a href="/order/@item.OrderId" class="text-primary">@item.ProductName</a></td>
-                                            <td>@($"{String.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:C}", item.Price)}")</td>
+                                           @* <td><a href="/order/@item.OrderId" class="text-primary">@item.ProductName</a></td>
+                                            <td>@($"{String.Format(new System.Globalization.CultureInfo("vi-VN"), "{0:C}", item.Price)}")</td>*@
                                             @switch (item.Status)
                                             {
                                                 case OrderStatus.Processing:
@@ -256,14 +256,14 @@
                     <div class="card top-selling overflow-auto">
 
                         <div class="card-body pb-0">
-                            <h5 class="card-title">Sản phẩm được mua nhiều nhất <span></span></h5>
+                            <h5 class="card-title">Sản phẩm được mua gần đây <span></span></h5>
 
                             <table class="table table-borderless">
                                 <thead>
                                     <tr>
                                         <th scope="col">Hình</th>
                                         <th scope="col">Sản phẩm</th>
-                                        <th scope="col">Giá</th>
+                                       @* <th scope="col">Giá</th>*@
                                         <th scope="col">Đã bán</th>
 
                                     </tr>
@@ -276,7 +276,7 @@
                                         <tr>
                                             <th scope="row"><a href="#"><img src="@path" alt=""></a></th>
                                             <td><a href="#" class="text-primary fw-bold">@item.ProductName</a></td>
-                                            <td>@FormatAsPrice(item.Price)</td>
+                                           @* <td>@FormatAsPrice(item.Price)</td>*@
                                             <td class="fw-bold">@item.Count</td>
                                         </tr>
                                     }
@@ -292,7 +292,7 @@
             </div>
         </div><!-- End Left side columns -->
         <!-- Right side columns -->
-        <div class="col-lg-4">
+        <div class="col-lg-4" style="display : none !important">
 
             <!-- Recent Activity -->
             <div class="card">
@@ -336,7 +336,7 @@
                 </div>
             </div><!-- End Recent Activity -->
             <!-- Budget Report -->
-            <div class="card">
+            @*<div class="card">
 
                 <div class="card-body pb-0">
                     <h5 class="card-title">Tình trạng đơn hàng</h5>
@@ -353,7 +353,7 @@
 
 
                 </div>
-            </div><!-- End Budget Report -->
+            </div>*@<!-- End Budget Report -->
 
         </div><!-- End Right side columns -->
 
