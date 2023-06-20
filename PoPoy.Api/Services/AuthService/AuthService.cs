@@ -504,7 +504,7 @@ namespace PoPoy.Api.Services.AuthService
                     _context.OrderDetails.Add(_orderDetail);
                     products.Add("<tr>\r\n" +
                         "<td align=\"left\" style=\"padding:3px 9px\" valign=\"top\">\r\n" +
-                        $"<span>{_context.Products.Where(x => x.Id == items.Product.Id).FirstOrDefault().Title} - {items.SizeName}</span>\r\n" +
+                        $"<span>{_context.Products.Where(x => x.Id == items.Product.Id).FirstOrDefault().Title}</span>\r\n" +
                         "<br>\r\n" +
                         "</td>\r\n" +
                         "<td align=\"left\" style=\"padding:3px 9px\" valign=\"top\">\r\n" +

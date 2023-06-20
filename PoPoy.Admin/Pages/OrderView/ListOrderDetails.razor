@@ -73,7 +73,7 @@
                                         <label for="name">Mã đơn hàng</label>
                                         <input disabled class="form-control" value="@(order.Id)" />
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-6" style="display : none !important">
                                         <RadzenButton Style="height:53px" class="ml-3" Icon="ios_share" ButtonStyle="ButtonStyle.Primary" Variant="Variant.Outlined"
                                                       Click="()=>SendChat(order, order.UserId)" Text="Gửi tin nhắn"></RadzenButton>
                                     </div>
@@ -145,7 +145,7 @@
                                 <h2 style="color:#012970">Đã bàn giao cho <b>@(order.Shipper != null ? order.Shipper.FirstName + " "+  order.Shipper.LastName : "")</b> !</h2>
                             </div>
 
-                            <img src="/images/choxacnhan.gif" width="300" />
+                            
                         </div>
                     </RadzenStepsItem>
 
@@ -156,7 +156,7 @@
                                 <h2 style="color:#012970">Shipper <b>@(order.Shipper != null ? order.Shipper.FirstName + " " + order.Shipper.LastName : "") </b> đang giao hàng !</h2>
                             </div>
 
-                            <img src="/images/danggiaohang.gif" width="300" />
+                           
                         </div>
                     </RadzenStepsItem>
 
@@ -167,7 +167,7 @@
                                 <div>
                                     <h2 style="color:#012970">Đơn hàng được <b>@(order.Shipper != null ? order.Shipper?.FirstName + " " + order.Shipper?.LastName : "") </b> giao thành công !</h2>
                                 </div>
-                                <img src="/images/danhanhang.png" width="100" />
+                                
 
                             }
                             else if (order.OrderStatus == OrderStatus.Cancelled)
@@ -175,7 +175,7 @@
                                 <div>
                                     <h2 style="color:#012970">Đơn hàng giao không thành công !</h2>
                                 </div>
-                                <img src="/images/giaothatbai.png" width="100" />
+                                
 
                             }
                         </div>

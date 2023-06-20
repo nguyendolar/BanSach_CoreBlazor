@@ -39,10 +39,10 @@
                         </div>
                         <div class="d-flex">
                             @if (item.OrderStatus == OrderStatus.Confirmed || item.OrderStatus == OrderStatus.Processing && item.PaymentStatus.ToString() != "Paid")
-                            // thành nguyễn sửa lại chỉ trong trạng thái chờ xác nhận mới cho hủy đang ship hay giao rồi thì kh hủy + đã thanh toán thì không được hủy
+                            
                             {
-                                <RadzenButton class="ml-3" Icon="cancel" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Outlined" Text="Hủy đơn hàng"
-                                              Click="args => OnDeleteTask(item.Id)"></RadzenButton>}
+                                @*<RadzenButton class="ml-3" Icon="cancel" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Outlined" Text="Hủy đơn hàng"
+                                              Click="args => OnDeleteTask(item.Id)"></RadzenButton>*@}
                                 @if (item.OrderStatus.ToString() != "Cancelled")
                                 {
                                     @if (item.PaymentMode != "CashOnDelivery")

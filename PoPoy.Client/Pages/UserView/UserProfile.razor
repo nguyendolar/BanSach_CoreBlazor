@@ -73,7 +73,7 @@
                                                     <InputText @bind-Value="user.FirstName" id="hotentxt" type="text" class="text_field" placeholder="Nhập tên đệm và tên của bạn" name="hoten" autocomplete="off" required="" autofocus=""></InputText>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="form-group" style="display : none !important">
                                                 <label for="passtxt">Mật khẩu:</label>
                                                 <InputDate @bind-Value="user.Dob" id="dob" class="text_field" placeholder="Nhập ngày tháng năm sinh" name="dob" required=""></InputDate>
                                                 <span id="passerrortxt" class="text-danger" style="color:red; float:right; margin-bottom:20px">
@@ -111,7 +111,7 @@
                                     <div class="information_wrapper">
                                         <div class="author_module about_author">
                                             <p><span class="indam">Họ tên:</span> @KhachName</p>
-                                            <p><span class="indam">Ngày sinh:</span> @user.Dob.ToString("dd/MM/yyyy")</p>
+                                           @* <p><span class="indam">Ngày sinh:</span> @user.Dob.ToString("dd/MM/yyyy")</p>*@
                                             <p><span class="indam">Số điện thoại:</span> @user.PhoneNumber</p>
                                             <p><span class="indam">Email:</span> @user.Email</p>
                                         </div>

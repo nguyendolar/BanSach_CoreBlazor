@@ -60,10 +60,10 @@
                         <span class="product-info-detail-title">Lượt xem:</span>
                         @product.Views
                     </div>
-                    <div class="product-info-detail">
+                   @* <div class="product-info-detail">
                         <span class="product-info-detail-title">Đã bán:</span>
                         @product.CheckoutCount
-                    </div>
+                    </div>*@
                     <div class="product-info-detail">
                         <span class="product-info-detail-title">Danh mục: </span>
                         @try
@@ -75,7 +75,7 @@
                         }
                         catch { }
                     </div>
-                    <div class="product-info-detail">
+                    @*<div class="product-info-detail">
                         <span class="product-info-detail-title">
                             Đánh giá:
                             <RatingStar Rating="@reviewAverage"></RatingStar>
@@ -86,7 +86,7 @@
                             Số lượt đánh giá:
                             @(reviewCount)
                         </span>
-                    </div>
+                    </div>*@
 
                     <div>
                         <button class="btn-flat btn-hover" @onclick="AddToCart">Thêm vào giỏ hàng</button>
@@ -96,7 +96,7 @@
         </div>
         <div class="box">
             <div class="box-header">
-                mô tả
+                Mô tả
             </div>
             <div class="product-detail-description">
                 <button class="btn-flat btn-hover btn-view-description" id="view-all-description" @onclick="ButtonViewAllClick">
@@ -115,7 +115,7 @@
                 </div>
             </div>
         </div>
-        <ProductReview ProductId="@id" OnReviewAverageCalculated="@OnReviewAverageCalculated"></ProductReview>
+        @*<ProductReview ProductId="@id" OnReviewAverageCalculated="@OnReviewAverageCalculated"></ProductReview>*@
         <ProductList Box_Header="Sản phẩm liên quan"></ProductList>
         <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage" />
     </div>

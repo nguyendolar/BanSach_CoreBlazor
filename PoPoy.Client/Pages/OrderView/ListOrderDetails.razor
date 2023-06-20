@@ -13,9 +13,7 @@
 <div class="container">
         <div class="box">
             <div class="breadcumb">
-                <a href="./index.html">home</a>
-                <span><i class='bx bxs-chevrons-right'></i></span>
-                <a href="./products.html">all products</a>
+              
             </div>
         </div>
 @if (order != null)
@@ -95,7 +93,7 @@
                                     <label for="name">Mã đơn hàng</label>
                                     <input disabled class="form-control" value="@(order.Id)" />
                                 </div>
-                                <div class="col-6">
+                                <div class="col-6" style="display : none !important">
                                     <label>Thao tác</label>
                                     <RadzenButton  class="form-control" Icon="ios_share" ButtonStyle="ButtonStyle.Primary" Variant="Variant.Outlined"
                                               Click="()=>SendChat(order)" Text="Gửi tin nhắn kèm thông tin "></RadzenButton>
@@ -156,8 +154,8 @@
                                                 <h4 class="mb-0">@(orderDetail.Product.Title)</h4>
                                                 <div style="font-size: .8em"> Số lượng: @(orderDetail.Quantity)</div>
                                                
-                                                <RadzenButton Disabled="@(order.OrderStatus != OrderStatus.Delivered && order.OrderStatus != OrderStatus.Cancelled)" Text="Đánh giá" Icon="edit" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Warning" Class="m-1" Click="args => OpenRate(orderDetail.ProductId)">
-                                                </RadzenButton>
+                                                @*<RadzenButton Disabled="@(order.OrderStatus != OrderStatus.Delivered && order.OrderStatus != OrderStatus.Cancelled)" Text="Đánh giá" Icon="edit" Variant="Variant.Outlined" ButtonStyle="ButtonStyle.Warning" Class="m-1" Click="args => OpenRate(orderDetail.ProductId)">
+                                                </RadzenButton>*@
                                             </div>
                                         </div>
                                     </RadzenCard>
