@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -19,5 +20,11 @@ namespace PoPoy.Shared.ViewModels
         public int Price { set; get; }
         public int Quantity { get; set; }
         public string Description { set; get; }
+        public List<string> CategoryName { get; set; }
+
+        public ProductCreateRequest()
+        {
+            CategoryName = new List<string>();
+        }
     }
 }

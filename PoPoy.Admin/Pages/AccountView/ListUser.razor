@@ -119,6 +119,7 @@ else
     private Confirmation DeleteConfirmation { set; get; }
     [Inject] private DialogService DialogService { get; set; }
     public event Action<dynamic> Close;
+    [Inject] private IToastService toastService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -142,6 +143,7 @@ else
         if (deleteConfirmed)
         {
             await AuthService.DeleteUser(DeleteId);
+            toastService.ShowSuccess("Xóa thành công !");
             await GetUsers();
         }
     }

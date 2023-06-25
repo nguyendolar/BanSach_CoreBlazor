@@ -1,9 +1,12 @@
 ﻿@page "/createProduct"
+@using PoPoy.Admin.Extensions;
+@using System.Net.Http.Headers;
 
 @inject IProductService ProductService
+@inject ICategoryService CategoryService
 @inject NavigationManager NavigationManager
 @inject Radzen.DialogService dialogService;
-
+@inject HttpClient httpClient;
 <div class="card-body ml-3 col-12">
    <RadzenTabs>
        <Tabs>
@@ -44,7 +47,6 @@
                         <InputNumber id="quantity" @bind-Value="Product.Quantity"></InputNumber>
                         <ValidationMessage For="()=> Product.Quantity"></ValidationMessage>
                     </div>
-
                     @*<div class="text-field col-lg-12 mb-4">
                         <label for="originalPrice">Giá gốc</label>
                         <InputNumber id="originalPrice" @bind-Value="Product.OriginalPrice"></InputNumber>
@@ -58,19 +60,53 @@
                     </div>
                 </EditForm>
             </RadzenTabsItem>
-
+            <RadzenTabsItem Text="Danh mục">
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Chọn danh mục</RadzenText>
+                <RadzenListBox Multiple AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" @bind-Value=@Product.CategoryName
+                               Data=@CategoryName Style="height:200px" Class="w-100" />
+            </RadzenTabsItem>
         </Tabs>
    </RadzenTabs>
 </div>
 
 @code {
     public ProductCreateRequest Product = new ProductCreateRequest();
+    private int maxAllowedFiles = int.MaxValue;
+    private long maxFileSize = long.MaxValue;
+    private List<string> fileNames = new();
+    public List<string> CategoryName { get; set; } = new();
+    [Inject] private IToastService toastService { get; set; }
 
+    protected async override Task OnInitializedAsync()
+    {
+        await LoadCategory();
+    }
+    
     private async Task Create()
     {
         var result = await ProductService.CreateProduct(Product);
         if (result)
-            NavigationManager.NavigateTo("/listProduct");
+        {
+            toastService.ShowSuccess("Thêm mới thành công !");
+        }
+        NavigationManager.NavigateTo("/listProduct");
+    }
+    private async Task LoadCategory()
+    {
+        var a = await CategoryService.GetAllCategories();
+        CategoryName = a.Select(x => x.Name).ToList();
+    }
+    async Task OnLoadData(LoadDataArgs args)
+    {
+        await LoadCategory();
+
+        var list = CategoryName;
+        if (!string.IsNullOrEmpty(args.Filter))
+        {
+            list = CategoryName.Where(c => c.ConvertToUnSign().Contains(args.Filter.ConvertToUnSign())).ToList();
+        }
+        CategoryName = list;
+        await InvokeAsync(StateHasChanged);
     }
 }
 

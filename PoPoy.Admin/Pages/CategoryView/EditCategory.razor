@@ -47,6 +47,7 @@
     [Parameter]
     public string Id { get; set; }
     public CateVM Category = new CateVM();
+    [Inject] private IToastService toastService { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -57,6 +58,7 @@
     private async Task UpdateCategory()
     {
         await CategoryService.UpdateCategory(Category);
+        toastService.ShowSuccess("Cập nhật thành công !");
         NavigationManager.NavigateTo("/listCategory");
     }
 

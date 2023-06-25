@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -147,13 +149,25 @@ namespace PoPoy.Api.Services.ProductService
         }
         public async Task<bool> CreateProduct(ProductCreateRequest request)
         {
+            var categoryId = 5;
+            if (request.CategoryName.Any())
+            {
+                var cateName = request.CategoryName.FirstOrDefault();
+                var cate = _dataContext.Categories.FirstOrDefault(x => x.Name.Equals(cateName));
+                if(cate != null)
+                {
+                    categoryId = cate.Id;
+                }
+            }
+
+
             var product = new Product()
             {
                 Title = request.Title,
                 Description = request.Description,
                 Views = 0,
                 DateCreated = DateTime.Now,
-                CategoryId = 5
+                CategoryId = categoryId
             };
 
             _dataContext.Products.Add(product);
@@ -163,7 +177,7 @@ namespace PoPoy.Api.Services.ProductService
                 var proCate = new ProductInCategory()
                 {
                     ProductId = product.Id,
-                    CategoryId = 5
+                    CategoryId = categoryId
                 };
 
                 _dataContext.ProductInCategories.Add(proCate);

@@ -130,6 +130,7 @@ else
     public bool ShowErrors = false;
     public string Message;
     string value = "ALFKI";
+    [Inject] private IToastService toastService { get; set; }
 
 
     int IdMain = 0;
@@ -149,6 +150,7 @@ else
     private async Task UpdateProduct()
     {
         await ProductService.UpdateProduct(Product);
+        toastService.ShowSuccess("Cập nhật thành công !");
         NavigationManager.NavigateTo("/listProduct");
     }
 

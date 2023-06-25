@@ -61,6 +61,7 @@
     private int ProductId { set; get; }
     private Confirmation DeleteConfirmation { set; get; }
     public event Action<dynamic> Close;
+    [Inject] private IToastService toastService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -86,6 +87,7 @@
         if (deleteConfirmed)
         {
             await ProductService.DeleteProduct(ProductId);
+            toastService.ShowSuccess("Xóa thành công !");
             await GetProducts();
             StateHasChanged();
         }

@@ -46,10 +46,15 @@
 
 @code {
     public CategoryCreateRequest Category = new CategoryCreateRequest();
+    [Inject] private IToastService toastService { get; set; }
     private async Task Create()
     {
         var result = await CategoryService.CreateCategory(Category);
         if (result)
+        {
+            toastService.ShowSuccess("Thêm mới thành công !");
+        }
+        
             NavigationManager.NavigateTo("/listCategory");
     }
 }
